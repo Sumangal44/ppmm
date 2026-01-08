@@ -25,27 +25,7 @@ jobs:
       - name: Test before publishing
         run: cargo test
 
-      - name: Install jq
-        run: sudo apt-get update && sudo apt-get install -y jq
-
-      - name: Get OIDC token
-        id: oidc
-        run: |
-          echo "Requesting OIDC token..."
-          OIDC_TOKEN=$(curl -sS -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
-            "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=https://crates.io" | jq -r .value)
-          
-          if [ -z "$OIDC_TOKEN" ] || [ "$OIDC_TOKEN" = "null" ]; then
-            echo "❌ Failed to get OIDC token"
-            exit 1
-          fi
-          
-          echo "✅ OIDC token obtained"
-          echo "::add-mask::$OIDC_TOKEN"
-          echo "token=$OIDC_TOKEN" >> $GITHUB_OUTPUT
-
       - name: Publish to crates.io
         run: cargo publish
         env:
-          CARGO_REGISTRY_TOKEN: ${{ steps.oidc.outputs.token }}
-
+          CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
