@@ -79,22 +79,64 @@ ppmm run build
 
 ## Installation
 
+### Using Cargo (Recommended)
+
+Install directly from crates.io:
+
+```bash
+cargo install ppmm
+```
+
+### Using Homebrew (macOS/Linux)
+
+```bash
+# Coming soon - waiting for tap creation
+brew tap Sumangal44/ppmm
+brew install ppmm
+```
+
+### Using Scoop (Windows)
+
+```bash
+# Coming soon - waiting for bucket submission
+scoop bucket add ppmm https://github.com/Sumangal44/ppmm
+scoop install ppmm
+```
+
+### From Binary Releases
+
+Download pre-built binaries from [GitHub Releases](https://github.com/Sumangal44/ppmm/releases):
+
+**Linux/macOS:**
+```bash
+# Download and extract
+curl -L https://github.com/Sumangal44/ppmm/releases/latest/download/ppmm-linux-x64.tar.gz | tar xz
+sudo mv ppmm /usr/local/bin/
+ppmm --version
+```
+
+**Windows:**
+```powershell
+# Download from releases page and add to PATH
+# Or use the installer executable
+```
+
 ### Script install (Linux/macOS)
 
 From the repository root run:
 
 ```bash
-git clone https://github.com/Sumangal44/python-project-manager.git
-cd python-project-manager
+git clone https://github.com/Sumangal44/ppmm.git
+cd ppmm
 bash install.sh
 ```
 
-This uses [install.sh](install.sh) to check prerequisites, build, and place `ppm` in `/usr/local/bin` (prompts for sudo if needed).
+This uses [install.sh](install.sh) to check prerequisites, build, and place `ppmm` in `/usr/local/bin` (prompts for sudo if needed).
 
 ### Quick one-liner (Linux/macOS)
 
 ```bash
-bash <(curl -s https://raw.githubusercontent.com/Sumangal44/python-project-manager/master/quick-install.sh)
+bash <(curl -s https://raw.githubusercontent.com/Sumangal44/ppmm/master/quick-install.sh)
 ```
 
 Or run locally: `bash quick-install.sh` after cloning. Script lives at [quick-install.sh](quick-install.sh).
@@ -104,20 +146,20 @@ Or run locally: `bash quick-install.sh` after cloning. Script lives at [quick-in
 Requirements: Rust 1.60+, Python 3.7+, Git.
 
 ```bash
-git clone https://github.com/Sumangal44/python-project-manager.git
-cd python-project-manager
+git clone https://github.com/Sumangal44/ppmm.git
+cd ppmm
 cargo build --release
 
 # Linux/macOS
 sudo cp target/release/ppmm /usr/local/bin/
 
 # Windows (PowerShell/CMD)
-copy target\release\ppm.exe C:\\Windows\\System32\\   # or add target\release to PATH
+copy target\release\ppmm.exe C:\\Windows\\System32\\   # or add target\release to PATH
 
 ppmm --version
 ```
 
-Binary output: `target/release/ppmm` (or `ppm.exe` on Windows).
+Binary output: `target/release/ppmm` (or `ppmm.exe` on Windows).
 
 ## Commands
 
@@ -481,8 +523,8 @@ curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 ### Building
 
 ```bash
-git clone https://github.com/Sumangal44/python-project-manager
-cd python-project-manager
+git clone https://github.com/Sumangal44/ppmm
+cd ppmm
 
 # Build debug version
 cargo build
