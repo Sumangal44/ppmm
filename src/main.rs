@@ -29,6 +29,7 @@ fn main() {
         Action::Run(run) => run.run_script(),
         Action::Install(installer) => installer.install_packages(),
         Action::Build(builder) => builder.build_project(),
+        Action::Bump(bumper) => bumper.bump_version(),
         Action::Info => ppm_functions::show_project_info(),
         Action::Gen => ppm_functions::gen_requirements(),
         Action::Start => ppm_functions::start_project(),

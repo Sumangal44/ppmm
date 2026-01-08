@@ -36,6 +36,8 @@ pub enum Action {
     Update,
     /// Build the project
     Build(BuildProject),
+    /// Bump project version (major, minor, patch)
+    Bump(BumpVersion),
 }
 
 pub struct ProjectCreator {
@@ -562,4 +564,76 @@ impl BuildProject {
             }
         }
     }
+}
+
+#[derive(Args, Debug)]
+pub struct BumpVersion {
+    /// Version bump type: major, minor, or patch
+    #[clap(value_parser = ["major", "minor", "patch"])]
+    pub bump_type: String,
+}
+
+impl BumpVersion {
+    pub fn bump_version(&self) {
+        let config_file = get_project_config_file();
+        if !Path::new(config_file).exists() {
+            eprint(format!("Could not find {}", config_file));
+            return;
+        }
+
+        let mut conf = match Config::load_from_file(config_file) {
+            Ok(conf) => conf,
+            Err(e) => {
+                eprint(e.to_string());
+                return;
+            }
+        };
+
+        let current_version = conf.project.version.clone();
+        let new_version = match bump_semantic_version(&current_version, &self.bump_type) {
+            Ok(v) => v,
+            Err(e) => {
+                eprint(format!("Failed to bump version: {}", e));
+                return;
+            }
+        };
+
+        conf.project.version = new_version.clone();
+
+        match conf.write_to_file(config_file) {
+            Ok(_) => {
+                iprint(format!("Version bumped: {} → {}", current_version.bright_cyan(), new_version.bright_green()));
+            }
+            Err(e) => {
+                eprint(format!("Failed to update project.toml: {}", e));
+            }
+        }
+    }
+}
+
+/// Bump semantic version (major.minor.patch)
+fn bump_semantic_version(version: &str, bump_type: &str) -> Result<String, String> {
+    // Remove alpha/beta suffixes
+    let base_version = version.split('-').next().unwrap_or(version);
+    
+    let parts: Vec<&str> = base_version.split('.').collect();
+    if parts.len() != 3 {
+        return Err(format!("Invalid version format: {}. Expected major.minor.patch", version));
+    }
+
+    let major: u32 = parts[0].parse()
+        .map_err(|_| format!("Invalid major version: {}", parts[0]))?;
+    let minor: u32 = parts[1].parse()
+        .map_err(|_| format!("Invalid minor version: {}", parts[1]))?;
+    let patch: u32 = parts[2].parse()
+        .map_err(|_| format!("Invalid patch version: {}", parts[2]))?;
+
+    let new_version = match bump_type {
+        "major" => format!("{}.0.0", major + 1),
+        "minor" => format!("{}.{}.0", major, minor + 1),
+        "patch" => format!("{}.{}.{}", major, minor, patch + 1),
+        _ => return Err(format!("Unknown bump type: {}. Use 'major', 'minor', or 'patch'", bump_type)),
+    };
+
+    Ok(new_version)
 }

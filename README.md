@@ -34,6 +34,7 @@ A fast, efficient command-line tool to create, manage, and deploy Python project
 - 🚀 **Script Management** - Create and run custom project scripts
 - 📋 **Requirements Generation** - Auto-generate requirements.txt from project configuration
 - 🔄 **Package Updates** - Update all packages to their latest versions
+- 🏷️ **Version Control** - Automatic semantic version bumping (major, minor, patch)
 - ✅ **Cross-Platform** - Works seamlessly on Windows, macOS, and Linux
 - ⚡ **Performance** - Optimized Rust implementation with zero runtime dependencies
 
@@ -240,6 +241,32 @@ Run the `build` script defined in the `[scripts]` section of `project.toml`.
 # build = "python setup.py build"
 
 ppm build
+```
+
+#### `ppm bump <TYPE>`
+Automatically bump the project version following semantic versioning.
+
+**Arguments:**
+- `major` - Increment major version (1.0.0 → 2.0.0)
+- `minor` - Increment minor version (1.0.0 → 1.1.0)
+- `patch` - Increment patch version (1.0.0 → 1.0.1)
+
+**Features:**
+- Parses semantic versions (major.minor.patch)
+- Strips alpha/beta suffixes before bumping
+- Updates project.toml automatically
+- Shows colored version bump info
+
+**Examples:**
+```bash
+# Bump patch version
+ppm bump patch
+
+# Bump minor version
+ppm bump minor
+
+# Bump major version
+ppm bump major
 ```
 
 ### Project Information
@@ -613,6 +640,15 @@ For issues, questions, or suggestions:
 - Read the [Wiki](https://github.com/Sumangal44/python-project-manager/wiki)
 
 ## Changelog
+
+### Version 1.1.0
+
+- ✅ Added `ppm build` command for project builds
+- ✅ Added `ppm bump` command for semantic versioning (major, minor, patch)
+- ✅ Automatic version control and management
+- ✅ Install script with prerequisites checking
+- ✅ Quick one-liner installer support
+- ✅ Updated documentation and examples
 
 ### Version 1.0.0-alpha
 
