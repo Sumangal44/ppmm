@@ -3,7 +3,7 @@
 A fast, efficient command-line tool to create, manage, and deploy Python projects. Written in Rust with cross-platform support for Windows, macOS, and Linux.
 
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/version-1.0.0--alpha-brightgreen.svg)](https://github.com/Fus3n/python-project-manager/releases)
+[![Version](https://img.shields.io/badge/version-1.0.0--alpha-brightgreen.svg)](https://github.com/Sumangal44/python-project-manager/releases)
 
 ## Table of Contents
 
@@ -78,27 +78,45 @@ ppm run build
 
 ## Installation
 
-### Download Pre-Built Binaries
+### Script install (Linux/macOS)
 
-Visit the [Releases](https://github.com/Fus3n/python-project-manager/releases) page and download the binary for your platform.
-
-### Build From Source
-
-**Requirements:**
-- Rust 1.60+ ([Install Rust](https://www.rust-lang.org/tools/install))
-- Python 3.7+
-- Git
-
-**Build Steps:**
+From the repository root run:
 
 ```bash
-git clone https://github.com/Fus3n/python-project-manager
+git clone https://github.com/Sumangal44/python-project-manager.git
 cd python-project-manager
-cargo build --release
-./target/release/ppm --version
+bash install.sh
 ```
 
-The binary will be available at `target/release/ppm` (or `target/release/ppm.exe` on Windows).
+This uses [install.sh](install.sh) to check prerequisites, build, and place `ppm` in `/usr/local/bin` (prompts for sudo if needed).
+
+### Quick one-liner (Linux/macOS)
+
+```bash
+bash <(curl -s https://raw.githubusercontent.com/Sumangal44/python-project-manager/master/quick-install.sh)
+```
+
+Or run locally: `bash quick-install.sh` after cloning. Script lives at [quick-install.sh](quick-install.sh).
+
+### Manual install (Linux/macOS/Windows)
+
+Requirements: Rust 1.60+, Python 3.7+, Git.
+
+```bash
+git clone https://github.com/Sumangal44/python-project-manager.git
+cd python-project-manager
+cargo build --release
+
+# Linux/macOS
+sudo cp target/release/ppm /usr/local/bin/
+
+# Windows (PowerShell/CMD)
+copy target\release\ppm.exe C:\\Windows\\System32\\   # or add target\release to PATH
+
+ppm --version
+```
+
+Binary output: `target/release/ppm` (or `ppm.exe` on Windows).
 
 ## Commands
 
@@ -205,6 +223,23 @@ Execute a custom script defined in `project.toml`.
 ppm run test
 ppm run build
 ppm run dev
+```
+
+#### `ppm build`
+Run the `build` script defined in the `[scripts]` section of `project.toml`.
+
+**Features:**
+- Uses the project's virtual environment on PATH
+- Cross-platform execution (`cmd` on Windows, `sh -c` on Linux/macOS)
+- Warns if `scripts.build` is not defined
+
+**Examples:**
+```bash
+# Ensure project.toml contains:
+# [scripts]
+# build = "python setup.py build"
+
+ppm build
 ```
 
 ### Project Information
@@ -419,7 +454,7 @@ curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 ### Building
 
 ```bash
-git clone https://github.com/Fus3n/python-project-manager
+git clone https://github.com/Sumangal44/python-project-manager
 cd python-project-manager
 
 # Build debug version
@@ -573,9 +608,9 @@ Based on the PPM concept for streamlined Python project management.
 
 For issues, questions, or suggestions:
 
-- Open an [Issue](https://github.com/Fus3n/python-project-manager/issues)
-- Check [Discussions](https://github.com/Fus3n/python-project-manager/discussions)
-- Read the [Wiki](https://github.com/Fus3n/python-project-manager/wiki)
+- Open an [Issue](https://github.com/Sumangal44/python-project-manager/issues)
+- Check [Discussions](https://github.com/Sumangal44/python-project-manager/discussions)
+- Read the [Wiki](https://github.com/Sumangal44/python-project-manager/wiki)
 
 ## Changelog
 
