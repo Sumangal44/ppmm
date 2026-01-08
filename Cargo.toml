@@ -1,13 +1,13 @@
 [package]
 name = "ppmm"
 version = "1.1.0"
-edition = "2021"
+edition = "2024"
 authors = ["sumangal44"]
 description = "PPM is a project manager for Python"
 license = "MIT"
-repository = "https://github.com/Sumangal44/python-project-manager"
-homepage = "https://github.com/Sumangal44/python-project-manager"
-documentation = "https://github.com/Sumangal44/python-project-manager"
+repository = "https://github.com/Sumangal44/ppmm"
+homepage = "https://github.com/Sumangal44/ppmm"
+documentation = "https://github.com/Sumangal44/ppmm"
 keywords = ["python", "project", "manager", "cli", "venv"]
 categories = ["development-tools", "command-line-utilities"]
 build = "build.rs"
