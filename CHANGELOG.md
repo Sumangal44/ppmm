@@ -7,20 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.1.2] - 2026-01-08
+
 ### Added
-- Initial project structure and documentation
-- Cross-platform support (Windows, macOS, Linux)
-- Comprehensive README with usage examples
-- Contributing guidelines and code of conduct
-- Security policy with vulnerability disclosure
-- Publishing guide for crates.io distribution
+- GitHub Actions workflows (publish.yml and release-checklist.yml)
+- Complete CHANGELOG.md with versioning guidelines
+- Code formatting with rustfmt applied
+- Release validation and pre-publication checklist
 
 ### Changed
-- Updated Cargo.toml edition to 2021
-- Standardized command naming to `ppmm` across all documentation
+- Applied cargo fmt to all source files for consistent formatting
+- Improved code organization and import ordering
+- Enhanced line wrapping for better readability
 
 ### Fixed
-- Cargo.toml edition compatibility
+- Fixed Cargo.toml edition from 2024 to 2021
 
 ## [1.1.1] - 2026-01-08
 
