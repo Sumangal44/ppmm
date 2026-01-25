@@ -10,7 +10,7 @@ BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
 echo -e "${BLUE}========================================${NC}"
-echo -e "${BLUE}  PPM (Python Project Manager) Installer${NC}"
+echo -e "${BLUE}  PPMM (Python Project Manager ) Installer${NC}"
 echo -e "${BLUE}========================================${NC}\n"
 
 # Check OS
@@ -59,11 +59,11 @@ fi
 echo ""
 
 # Clone or navigate to repo
-REPO_DIR="python-project-manager"
+REPO_DIR="ppmm"
 
 if [ ! -d "$REPO_DIR" ]; then
     echo -e "${BLUE}Cloning repository...${NC}"
-    git clone https://github.com/Sumangal44/python-project-manager.git
+    git clone https://github.com/Sumangal44/ppmm.git
     cd "$REPO_DIR"
 else
     echo -e "${BLUE}Repository already exists, updating...${NC}"
@@ -74,15 +74,15 @@ fi
 echo ""
 
 # Build the project
-echo -e "${BLUE}Building PPM (this may take a few moments)...${NC}"
+echo -e "${BLUE}Building PPMM (this may take a few moments)...${NC}"
 cargo build --release
 
 echo ""
 
 # Install globally
-echo -e "${BLUE}Installing PPM globally...${NC}"
+echo -e "${BLUE}Installing PPMM globally...${NC}"
 
-BINARY_PATH="target/release/ppm"
+BINARY_PATH="target/release/ppmm"
 INSTALL_DIR="/usr/local/bin"
 
 if [ ! -f "$BINARY_PATH" ]; then
@@ -92,27 +92,27 @@ fi
 
 # Try to install with sudo if needed
 if [ -w "$INSTALL_DIR" ]; then
-    cp "$BINARY_PATH" "$INSTALL_DIR/ppm"
-    echo -e "${GREEN}✓ Installed to $INSTALL_DIR/ppm${NC}"
+    cp "$BINARY_PATH" "$INSTALL_DIR/ppmm"
+    echo -e "${GREEN}✓ Installed to $INSTALL_DIR/ppmm${NC}"
 else
     echo -e "${YELLOW}Requires sudo to install to $INSTALL_DIR${NC}"
-    sudo cp "$BINARY_PATH" "$INSTALL_DIR/ppm"
-    echo -e "${GREEN}✓ Installed to $INSTALL_DIR/ppm${NC}"
+    sudo cp "$BINARY_PATH" "$INSTALL_DIR/ppmm"
+    echo -e "${GREEN}✓ Installed to $INSTALL_DIR/ppmm${NC}"
 fi
 
 # Make executable
-chmod +x "$INSTALL_DIR/ppm"
+chmod +x "$INSTALL_DIR/ppmm"
 
 echo ""
 
 # Verify installation
 echo -e "${BLUE}Verifying installation...${NC}"
-if command_exists ppm; then
-    PPM_VERSION=$(ppm --version)
-    echo -e "${GREEN}✓ PPM installed successfully${NC}"
-    echo -e "${GREEN}  Version: $PPM_VERSION${NC}"
+if command_exists ppmm; then
+    PPMM_VERSION=$(ppmm --version)
+    echo -e "${GREEN}✓ PPMM installed successfully${NC}"
+    echo -e "${GREEN}  Version: $PPMM_VERSION${NC}"
 else
-    echo -e "${YELLOW}⚠ PPM not found in PATH${NC}"
+    echo -e "${YELLOW}⚠ PPMM not found in PATH${NC}"
     echo -e "${YELLOW}  Try adding /usr/local/bin to your PATH or restart your terminal${NC}"
 fi
 
@@ -125,15 +125,15 @@ echo -e "${BLUE}========================================${NC}\n"
 
 echo -e "${YELLOW}Quick Start:${NC}"
 echo -e "  ${BLUE}Create new project:${NC}"
-echo -e "    ppm new my_project -v 1.0.0 -d 'My project' -g"
+echo -e "    ppmm new my_project -v 1.0.0 -d 'My project' -g"
 echo ""
 echo -e "  ${BLUE}Initialize existing project:${NC}"
-echo -e "    cd my_project && ppm init my_project"
+echo -e "    cd my_project && ppmm init my_project"
 echo ""
 echo -e "  ${BLUE}View all commands:${NC}"
-echo -e "    ppm --help"
+echo -e "    ppmm --help"
 echo ""
 
 echo -e "${BLUE}Documentation:${NC}"
-echo -e "  https://github.com/Sumangal44/python-project-manager"
+echo -e "  https://github.com/Sumangal44/ppmm"
 echo ""

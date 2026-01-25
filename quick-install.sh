@@ -1,10 +1,10 @@
 #!/bin/bash
-# One-liner installer for PPM
-# Usage: bash <(curl -s https://raw.githubusercontent.com/Sumangal44/python-project-manager/master/quick-install.sh)
+# One-liner installer for PPMM
+# Usage: bash <(curl -s https://raw.githubusercontent.com/Sumangal44/ppmm/master/quick-install.sh)
 
 set -e
 
-echo "🚀 Installing PPM (Python Project Manager)..."
+echo "🚀 Installing PPMM (Python Project Manager)..."
 
 # Check for Rust
 if ! command -v cargo &> /dev/null; then
@@ -14,13 +14,13 @@ if ! command -v cargo &> /dev/null; then
 fi
 
 # Clone and build
-git clone https://github.com/Sumangal44/python-project-manager.git
-cd python-project-manager
+git clone https://github.com/Sumangal44/ppmm.git
+cd ppmm
 cargo build --release
 
 # Install
-sudo cp target/release/ppm /usr/local/bin/
-chmod +x /usr/local/bin/ppm
+sudo cp target/release/ppmm /usr/local/bin/
+chmod +x /usr/local/bin/ppmm
 
-echo "✅ PPM installed successfully!"
-echo "📝 Try: ppm --help"
+echo "✅ PPMM installed successfully!"
+echo "📝 Try: ppmm --help"

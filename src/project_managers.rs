@@ -6,7 +6,8 @@ use std::{collections::HashMap, fs, path::Path, process::Command, time::Instant}
 
 const STARTER_SOURCE_PY: &str = "
 def main():
-    print('Hello From PPM!')
+    print('Hello From PPMM!')
+    print('Happy Coding!') 
 
 if __name__ == '__main__':
     main()
