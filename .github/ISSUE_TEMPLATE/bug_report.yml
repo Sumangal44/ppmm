@@ -1,0 +1,100 @@
+name: "🐞 Bug Report"
+description: Report a bug to help us improve the project
+title: "[BUG] "
+labels: ["bug"]
+assignees: []
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## 🐞 Bug Report
+        Thanks for taking the time to report a bug!  
+        Please fill out the details below so we can fix it faster.
+
+  - type: input
+    id: summary
+    attributes:
+      label: Bug summary
+      description: Short description of the bug
+      placeholder: Example - CLI crashes when running `ppmm use`
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Detailed description
+      description: Explain what happened
+      placeholder: Tell us what went wrong
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: How can we reproduce this bug?
+      placeholder: |
+        1. Run command...
+        2. Click...
+        3. Error appears...
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+      description: What should have happened?
+      placeholder: It should switch mirror without crashing
+    validations:
+      required: true
+
+  - type: textarea
+    id: screenshots
+    attributes:
+      label: Screenshots / Logs
+      description: Add screenshots or terminal logs
+      placeholder: Paste logs or drag screenshots here
+
+  - type: dropdown
+    id: os
+    attributes:
+      label: Operating System
+      options:
+        - Windows
+        - Linux
+        - macOS
+        - Other
+    validations:
+      required: true
+
+  - type: input
+    id: python
+    attributes:
+      label: Python version
+      placeholder: "Python 3.11"
+
+  - type: input
+    id: project_version
+    attributes:
+      label: Project version
+      placeholder: "v1.0.0"
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional context
+      description: Any extra info
+      placeholder: Add anything else helpful
+
+  - type: checkboxes
+    id: terms
+    attributes:
+      label: Checklist
+      options:
+        - label: I searched existing issues
+          required: true
+        - label: I am using the latest version
+          required: false
