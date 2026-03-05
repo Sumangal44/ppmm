@@ -152,11 +152,22 @@ pub fn ask_if_create_venv() -> bool {
 }
 
 pub fn parse_version(pkg: &str) -> (String, Option<String>) {
+    // Handle exact equality first
     if let Some((name, version)) = pkg.split_once("==") {
-        (name.to_string(), Some(version.to_string()))
-    } else {
-        (pkg.to_string(), None)
+        return (name.to_string(), Some(version.to_string()));
     }
+
+    // Other pip specifiers should be split so the package name can be used
+    // for PyPI lookups; we do not treat them as explicit pinned versions
+    // because the rest of the code expects exact versions when Some(_).
+    let operators = [">=", "<=", "~=", "!=", ">", "<"];
+    for op in operators.iter() {
+        if let Some((name, _rest)) = pkg.split_once(op) {
+            return (name.to_string(), None);
+        }
+    }
+
+    (pkg.to_string(), None)
 }
 
 fn validate_package_name(pkg: &str) -> Result<(), String> {
@@ -277,6 +288,7 @@ mod tests {
     fn test_parse_version() {
         assert_eq!(parse_version("requests==2.26.0"), ("requests".to_string(), Some("2.26.0".to_string())));
         assert_eq!(parse_version("numpy"), ("numpy".to_string(), None));
+        assert_eq!(parse_version("requests>=2.0.0"), ("requests".to_string(), None));
     }
 
     #[test]
