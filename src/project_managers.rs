@@ -396,7 +396,10 @@ impl RunScript {
             return;
         };
 
-        cmd.env("PATH", get_venv_bin_dir(venv_root));
+        let current_path = std::env::var("PATH").unwrap_or_default();
+        let separator = if cfg!(target_os = "windows") { ";" } else { ":" };
+        let new_path = format!("{}{}{}", get_venv_bin_dir(venv_root), separator, current_path);
+        cmd.env("PATH", new_path);
         cmd.arg(cmd_str);
 
         match cmd.spawn() {
@@ -638,7 +641,10 @@ impl BuildProject {
             return;
         };
 
-        cmd.env("PATH", get_venv_bin_dir(venv_root));
+        let current_path = std::env::var("PATH").unwrap_or_default();
+        let separator = if cfg!(target_os = "windows") { ";" } else { ":" };
+        let new_path = format!("{}{}{}", get_venv_bin_dir(venv_root), separator, current_path);
+        cmd.env("PATH", new_path);
         cmd.arg(build_script);
 
         match cmd.spawn() {
