@@ -176,7 +176,7 @@ fn validate_package_name(pkg: &str) -> Result<(), String> {
     }
     if pkg
         .chars()
-        .any(|c| !c.is_alphanumeric() && !"._-=<>~!".contains(c))
+        .any(|c| !c.is_alphanumeric() && !"._-=<>~![]@:/+".contains(c))
     {
         return Err(format!("Invalid package name: {}", pkg));
     }
@@ -282,6 +282,9 @@ mod tests {
         assert!(validate_package_name("").is_err());
         assert!(validate_package_name("pkg with spaces").is_err());
         assert!(validate_package_name("pkg/slash").is_err());
+        // Extras and VCS-style specifiers should be accepted
+        assert!(validate_package_name("fastapi[all]").is_ok());
+        assert!(validate_package_name("package@git+https://github.com/user/repo.git").is_ok());
     }
 
     #[test]
