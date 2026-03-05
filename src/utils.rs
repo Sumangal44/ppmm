@@ -35,7 +35,26 @@ pub fn get_venv_pip_path(venv_root: &str) -> String {
 }
 
 pub fn get_venv_bin_dir(venv_root: &str) -> String {
-    format!("./{}/{}/", venv_root, VENV_BIN_DIR)
+    use std::path::{Path, PathBuf, MAIN_SEPARATOR};
+
+    let rel = PathBuf::from(venv_root).join(VENV_BIN_DIR);
+
+    // Try to canonicalize the path (resolve to absolute). If that fails
+    // (e.g., venv not created yet), fall back to joining with current_dir().
+    let abs_path = std::fs::canonicalize(&rel).or_else(|_| {
+        std::env::current_dir().map(|cwd| cwd.join(&rel))
+    });
+
+    match abs_path {
+        Ok(p) => {
+            let mut s = p.to_string_lossy().to_string();
+            if !s.ends_with(MAIN_SEPARATOR) {
+                s.push(MAIN_SEPARATOR);
+            }
+            s
+        }
+        Err(_) => format!("./{}/{}/", venv_root, VENV_BIN_DIR),
+    }
 }
 
 pub fn get_project_config_file() -> &'static str {
@@ -297,19 +316,24 @@ mod tests {
     #[test]
     fn test_get_venv_paths() {
         let venv_root = "test_venv";
-        
         #[cfg(target_os = "windows")]
         {
             assert_eq!(get_venv_python_path(venv_root), "./test_venv/Scripts/python.exe");
             assert_eq!(get_venv_pip_path(venv_root), "./test_venv/Scripts/pip.exe");
-            assert_eq!(get_venv_bin_dir(venv_root), "./test_venv/Scripts/");
+            let bin = get_venv_bin_dir(venv_root);
+            assert!(bin.contains("test_venv"));
+            assert!(bin.contains("Scripts"));
+            assert_eq!(bin.chars().last().unwrap(), std::path::MAIN_SEPARATOR);
         }
 
         #[cfg(not(target_os = "windows"))]
         {
             assert_eq!(get_venv_python_path(venv_root), "./test_venv/bin/python");
             assert_eq!(get_venv_pip_path(venv_root), "./test_venv/bin/pip");
-            assert_eq!(get_venv_bin_dir(venv_root), "./test_venv/bin/");
+            let bin = get_venv_bin_dir(venv_root);
+            assert!(bin.contains("test_venv"));
+            assert!(bin.contains("bin"));
+            assert_eq!(bin.chars().last().unwrap(), std::path::MAIN_SEPARATOR);
         }
     }
 }
