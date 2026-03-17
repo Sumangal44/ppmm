@@ -580,6 +580,7 @@ impl Installer {
             packages_to_install.push(format!("{}=={}", name, version));
         }
 
+        // Batched pip install for better performance
         match install_packages_batch(&packages_to_install, venv_root) {
             Ok(_) => {
                 for (name, _) in conf.packages.iter() {

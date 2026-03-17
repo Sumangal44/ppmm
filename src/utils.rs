@@ -172,30 +172,6 @@ fn validate_package_name(pkg: &str) -> Result<(), String> {
     Ok(())
 }
 
-pub fn install_package(pkg: &str, venv_root: &str) -> Result<(), String> {
-    if !check_venv_dir_exists(venv_root) {
-        return Err("Virtual Environment Not Found".to_string());
-    }
-
-    validate_package_name(pkg)?;
-
-    iprint(format!("Installing '{}'", pkg));
-    let output = Command::new(get_venv_pip_path(venv_root))
-        .arg("install")
-        .arg(pkg)
-        .output()
-        .map_err(|e| format!("Failed to execute pip: {}", e))?;
-
-    if !output.status.success() {
-        return Err(format!(
-            "Failed to install package: {}",
-            String::from_utf8_lossy(&output.stderr)
-        ));
-    }
-
-    println!("{}", String::from_utf8_lossy(&output.stdout));
-    Ok(())
-}
 
 pub fn install_packages_batch(pkgs: &[String], venv_root: &str) -> Result<(), String> {
     if !check_venv_dir_exists(venv_root) {
