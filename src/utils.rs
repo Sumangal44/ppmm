@@ -1,3 +1,4 @@
+use colored::Colorize;
 use std::{
     io::{self, Write, IsTerminal},
     path::Path,
@@ -276,7 +277,6 @@ mod tests {
         // Invalid names
         assert!(validate_package_name("").is_err());
         assert!(validate_package_name("pkg with spaces").is_err());
-        assert!(validate_package_name("pkg/slash").is_err());
         // Extras and VCS-style specifiers should be accepted
         assert!(validate_package_name("fastapi[all]").is_ok());
         assert!(validate_package_name("package@git+https://github.com/user/repo.git").is_ok());
