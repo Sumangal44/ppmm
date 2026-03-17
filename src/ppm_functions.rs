@@ -251,10 +251,12 @@ pub fn update_packages(pkg_names: &[String]) {
         packages_to_install.push(format!("{}=={}", name, ver));
     }
 
+    // Batched pip install for better performance
     match install_packages_batch(&packages_to_install, &venv_root) {
         Ok(_) => {
             for (name, ver) in updates {
                 updated_packages.push((name.clone(), ver.clone()));
+
                 iprint(format!("Updated {}", name));
             }
         }

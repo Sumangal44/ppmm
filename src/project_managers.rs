@@ -396,7 +396,12 @@ impl RunScript {
             return;
         };
 
-        cmd.env("PATH", get_venv_bin_dir(venv_root));
+        let current_path = std::env::var_os("PATH").unwrap_or_default();
+        let mut paths = std::env::split_paths(&current_path).collect::<Vec<_>>();
+        paths.insert(0, std::path::PathBuf::from(get_venv_bin_dir(venv_root)));
+        if let Ok(new_path) = std::env::join_paths(paths) {
+            cmd.env("PATH", new_path);
+        }
         cmd.arg(cmd_str);
 
         match cmd.spawn() {
@@ -577,6 +582,7 @@ impl Installer {
             packages_to_install.push(format!("{}=={}", name, version));
         }
 
+        // Batched pip install for better performance
         match install_packages_batch(&packages_to_install, venv_root) {
             Ok(_) => {
                 for (name, _) in conf.packages.iter() {
@@ -638,7 +644,12 @@ impl BuildProject {
             return;
         };
 
-        cmd.env("PATH", get_venv_bin_dir(venv_root));
+        let current_path = std::env::var_os("PATH").unwrap_or_default();
+        let mut paths = std::env::split_paths(&current_path).collect::<Vec<_>>();
+        paths.insert(0, std::path::PathBuf::from(get_venv_bin_dir(venv_root)));
+        if let Ok(new_path) = std::env::join_paths(paths) {
+            cmd.env("PATH", new_path);
+        }
         cmd.arg(build_script);
 
         match cmd.spawn() {
