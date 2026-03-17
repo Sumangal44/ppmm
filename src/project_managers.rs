@@ -396,12 +396,10 @@ impl RunScript {
             return;
         };
 
-        let current_path = std::env::var_os("PATH").unwrap_or_default();
-        let mut paths = std::env::split_paths(&current_path).collect::<Vec<_>>();
-        paths.insert(0, std::path::PathBuf::from(get_venv_bin_dir(venv_root)));
-        if let Ok(new_path) = std::env::join_paths(paths) {
-            cmd.env("PATH", new_path);
-        }
+        let current_path = std::env::var("PATH").unwrap_or_default();
+        let separator = if cfg!(target_os = "windows") { ";" } else { ":" };
+        let new_path = format!("{}{}{}", get_venv_bin_dir(venv_root), separator, current_path);
+        cmd.env("PATH", new_path);
         cmd.arg(cmd_str);
 
         match cmd.spawn() {
@@ -644,12 +642,10 @@ impl BuildProject {
             return;
         };
 
-        let current_path = std::env::var_os("PATH").unwrap_or_default();
-        let mut paths = std::env::split_paths(&current_path).collect::<Vec<_>>();
-        paths.insert(0, std::path::PathBuf::from(get_venv_bin_dir(venv_root)));
-        if let Ok(new_path) = std::env::join_paths(paths) {
-            cmd.env("PATH", new_path);
-        }
+        let current_path = std::env::var("PATH").unwrap_or_default();
+        let separator = if cfg!(target_os = "windows") { ";" } else { ":" };
+        let new_path = format!("{}{}{}", get_venv_bin_dir(venv_root), separator, current_path);
+        cmd.env("PATH", new_path);
         cmd.arg(build_script);
 
         match cmd.spawn() {
