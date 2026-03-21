@@ -35,5 +35,6 @@ fn main() {
         Action::Start => ppm_functions::start_project(),
         Action::Update(update) => update.update_package(),
         Action::List => ppm_functions::list_packages(),
+        Action::Doctor => ppm_functions::doctor(),
     }
 }
