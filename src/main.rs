@@ -21,7 +21,7 @@ struct Cli {
 fn main() {
     let cli = Cli::parse();
 
-    match &cli.command {
+    let result = match &cli.command {
         Action::New(project) => project.create_project(false),
         Action::Init(project) => project.create_project(true),
         Action::Add(add_proj) => add_proj.add_package(),
@@ -30,10 +30,31 @@ fn main() {
         Action::Install(installer) => installer.install_packages(),
         Action::Build(builder) => builder.build_project(),
         Action::Bump(bumper) => bumper.bump_version(),
-        Action::Info => ppm_functions::show_project_info(),
-        Action::Gen => ppm_functions::gen_requirements(),
-        Action::Start => ppm_functions::start_project(),
+
+        Action::Info => {
+            ppm_functions::show_project_info();
+            Ok(())
+        }
+        Action::Gen => {
+            ppm_functions::gen_requirements();
+            Ok(())
+        }
+        Action::Start => {
+            ppm_functions::start_project();
+            Ok(())
+        }
         Action::Update(update) => update.update_package(),
-        Action::List => ppm_functions::list_packages(),
+        Action::List => {
+            ppm_functions::list_packages();
+            Ok(())
+        }
+    };
+
+    match result {
+        Ok(_) => std::process::exit(0),
+        Err(err) => {
+            eprintln!("Error: {}", err);
+            std::process::exit(1);
+        }
     }
 }
