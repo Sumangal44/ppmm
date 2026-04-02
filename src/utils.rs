@@ -1,3 +1,4 @@
+use colored::Colorize;
 use std::{
     io::{self, Write, IsTerminal},
     path::Path,
@@ -35,7 +36,7 @@ pub fn get_venv_pip_path(venv_root: &str) -> String {
 }
 
 pub fn get_venv_bin_dir(venv_root: &str) -> String {
-    use std::path::{Path, PathBuf, MAIN_SEPARATOR};
+    use std::path::{PathBuf, MAIN_SEPARATOR};
 
     let rel = PathBuf::from(venv_root).join(VENV_BIN_DIR);
 
