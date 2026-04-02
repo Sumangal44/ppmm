@@ -121,32 +121,23 @@ impl ProjectCreator {
         Ok(())
     }
 
-    pub fn create_project(&self) {
+    pub fn create_project(&self) -> Result<(), String> {
         let start = Instant::now();
         let proj_dest = self.get_path_with("src");
 
         if project_exists(&self.project.name, self.is_init) {
-            eprint(format!(
+            return Err(format!(
                 "Project With Name '{}' Already Exists",
                 &self.project.name
             ));
-            return;
         }
 
-        if let Err(e) = fs::create_dir_all(&proj_dest) {
-            eprint(format!("Failed to create directory: {}", e));
-            return;
-        }
+        fs::create_dir_all(&proj_dest)
+            .map_err(|e| format!("Failed to create directory: {}", e))?;
 
-        if let Err(e) = self.create_boilerplate_files() {
-            eprint(e);
-            return;
-        }
+        self.create_boilerplate_files()?;
 
-        if let Err(e) = self.create_git() {
-            eprint(e);
-            return;
-        }
+        self.create_git()?;
 
         if !self.project.no_venv {
             let venv_path = self
@@ -154,18 +145,13 @@ impl ProjectCreator {
                 .venv
                 .clone()
                 .unwrap_or_else(|| "venv".to_string());
-            if let Err(e) = setup_venv(self.get_path_with(&venv_path)) {
-                eprint(format!("Failed to setup venv: {}", e));
-                return;
-            }
+            setup_venv(self.get_path_with(&venv_path))
+                .map_err(|e| format!("Failed to setup venv: {}", e))?;
         } else {
             wprint("Virtual environment is disabled, some commands might not work".to_string());
         }
 
-        if let Err(e) = self.save_config() {
-            eprint(e);
-            return;
-        }
+        self.save_config()?;
 
         let elapsed = start.elapsed();
         iprint(format!("{} in {}s", "Completed".green(), elapsed.as_secs()));
@@ -174,6 +160,8 @@ impl ProjectCreator {
             println!("  cd {}", self.project.name.blue());
         }
         println!("  {} start\n", "ppm".red());
+
+        Ok(())
     }
 }
 
@@ -199,9 +187,9 @@ pub struct ProjectConf {
 }
 
 impl ProjectConf {
-    pub fn create_project(&self, is_init: bool) {
+    pub fn create_project(&self, is_init: bool) -> Result<(), String> {
         let proj_creator = ProjectCreator::new(self.clone(), is_init);
-        proj_creator.create_project();
+        proj_creator.create_project()
     }
 }
 
@@ -212,18 +200,16 @@ pub struct AddPackage {
 }
 
 impl AddPackage {
-    pub fn add_package(&self) {
+    pub fn add_package(&self) -> Result<(), String> {
         let config_file = get_project_config_file();
         if !Path::new(config_file).exists() {
-            eprint(format!("Could not find {}", config_file));
-            return;
+            return Err(format!("Could not find {}", config_file));
         }
 
         let mut conf = match Config::load_from_file(config_file) {
             Ok(conf) => conf,
             Err(e) => {
-                eprint(e.to_string());
-                return;
+                return Err(e.to_string());
             }
         };
 
@@ -231,7 +217,7 @@ impl AddPackage {
 
         if self.pkg_names.is_empty() {
             wprint("No packages specified".to_string());
-            return;
+            return Ok(());
         }
 
         match install_packages_batch(&self.pkg_names, venv_root) {
@@ -260,12 +246,14 @@ impl AddPackage {
                         }
                     }
                     Err(e) => {
-                        eprint(e.to_string());
+                        return Err(e.to_string());
                     }
                 }
+
+                Ok(())
             }
             Err(e) => {
-                eprint(e);
+                return Err(e);
             }
         }
     }
@@ -302,18 +290,16 @@ impl RemovePackage {
         Ok(())
     }
 
-    pub fn remove_package(&self) {
+    pub fn remove_package(&self) -> Result<(), String> {
         let config_file = get_project_config_file();
         if !Path::new(config_file).exists() {
-            eprint(format!("Could not find {}", config_file));
-            return;
+            return Err(format!("Could not find {}", config_file));
         }
 
         let mut conf = match Config::load_from_file(config_file) {
             Ok(conf) => conf,
             Err(e) => {
-                eprint(e.to_string());
-                return;
+                return Err(e.to_string());
             }
         };
 
@@ -336,16 +322,17 @@ impl RemovePackage {
                             }
                         }
                         Err(e) => {
-                            eprint(e.to_string());
-                            continue;
+                            return Err(e.to_string());
                         }
                     }
                 }
                 Err(e) => {
-                    eprint(format!("Failed to remove '{}': {}", pkg_name, e));
+                    return Err(format!("Failed to remove '{}': {}", pkg_name, e));
                 }
             }
         }
+
+        Ok(())
     }
 }
 
@@ -356,29 +343,26 @@ pub struct RunScript {
 }
 
 impl RunScript {
-    pub fn run_script(&self) {
+    pub fn run_script(&self) -> Result<(), String> {
         let config_file = get_project_config_file();
         if !Path::new(config_file).exists() {
-            eprint(format!("Could not find {}", config_file));
-            return;
+            return Err(format!("Could not find {}", config_file));
         }
 
         let conf = match Config::load_from_file(config_file) {
             Ok(conf) => conf,
             Err(e) => {
-                eprint(e.to_string());
-                return;
+                return Err(e.to_string());
             }
         };
 
         let cmd_str = match conf.scripts.get(&self.script_name) {
             Some(cmd) => cmd,
             None => {
-                eprint(format!(
+                return Err(format!(
                     "Script with name '{}' does not exist",
                     self.script_name
                 ));
-                return;
             }
         };
 
@@ -393,8 +377,7 @@ impl RunScript {
             c.arg("-c");
             c
         } else {
-            eprint("Unsupported OS".to_owned());
-            return;
+            return Err("Unsupported OS".to_owned());
         };
 
         let current_path = std::env::var("PATH").unwrap_or_default();
@@ -406,13 +389,15 @@ impl RunScript {
         match cmd.spawn() {
             Ok(mut child) => {
                 if let Err(e) = child.wait() {
-                    eprint(format!("Error waiting for script: {}", e));
+                    return Err(format!("Error waiting for script: {}", e));
                 }
             }
             Err(e) => {
-                eprint(e.to_string());
+                return Err(e.to_string());
             }
         }
+
+        Ok(())
     }
 }
 
@@ -424,18 +409,16 @@ pub struct Installer {
 }
 
 impl Installer {
-    fn install_from_req(&self) {
+    fn install_from_req(&self) -> Result<(), String> {
         let config_file = get_project_config_file();
         if !Path::new(config_file).exists() {
-            eprint(format!("Could not find {}", config_file));
-            return;
+            return Err(format!("Could not find {}", config_file));
         }
 
         let mut conf = match Config::load_from_file(config_file) {
             Ok(conf) => conf,
             Err(e) => {
-                eprint(e.to_string());
-                return;
+                return Err(e.to_string());
             }
         };
 
@@ -445,20 +428,18 @@ impl Installer {
             wprint(format!("Could not find '{}' directory", venv_root));
             if ask_if_create_venv() {
                 if let Err(e) = setup_venv(format!("./{}", venv_root)) {
-                    eprint(format!("Failed to setup venv: {}", e));
-                    return;
+                    return Err(format!("Failed to setup venv: {}", e));
                 }
             } else {
                 wprint("Installation Cancelled".to_owned());
-                return;
+                return Ok(());
             }
         }
 
         let req_file = match fs::read_to_string(&self.requirements) {
             Ok(f) => f,
             Err(e) => {
-                eprint(format!("Failed to read {}: {}", self.requirements, e));
-                return;
+                return Err(format!("Failed to read {}: {}", self.requirements, e));
             }
         };
 
@@ -469,7 +450,7 @@ impl Installer {
 
         if pkg_names.is_empty() {
             wprint("No packages found in requirements file".to_owned());
-            return;
+            return Ok(());
         }
 
         let pkg_names_string: Vec<String> = pkg_names.iter().map(|&s| s.to_string()).collect();
@@ -492,45 +473,44 @@ impl Installer {
                     conf.packages.insert(vname.clone(), version);
                     iprint(format!("Package '{}' installed successfully", &vname));
                 }
-                
+
                 match conf.write_to_file(config_file) {
-                    Ok(_) => {},
-                    Err(e) => eprint(e.to_string()),
+                    Ok(_) => {}
+                    Err(e) => return Err(e.to_string()),
                 }
             }
             Err(e) => {
-                eprint(e);
+                return Err(e);
             }
         }
 
         if let Err(e) = generate_lock_file(&venv_root) {
             eprint(format!("Failed to generate lock file: {}", e));
         }
+
+        Ok(())
     }
 
-    pub fn install_packages(&self) {
+    pub fn install_packages(&self) -> Result<(), String> {
         if !self.requirements.is_empty() {
-            self.install_from_req();
-            return;
+            return self.install_from_req();
         }
 
         let config_file = get_project_config_file();
         if !Path::new(config_file).exists() {
-            eprint(format!("Could not find {}", config_file));
-            return;
+            return Err(format!("Could not find {}", config_file));
         }
 
         let conf = match Config::load_from_file(config_file) {
             Ok(conf) => conf,
             Err(e) => {
-                eprint(e.to_string());
-                return;
+                return Err(e.to_string());
             }
         };
 
         if conf.packages.is_empty() {
             wprint("No packages to install".to_owned());
-            return;
+            return Ok(());
         }
 
         let venv_root = conf.project.venv.as_deref().unwrap_or("venv");
@@ -539,12 +519,11 @@ impl Installer {
             wprint(format!("Could not find '{}' directory", venv_root));
             if ask_if_create_venv() {
                 if let Err(e) = setup_venv(format!("./{}", venv_root)) {
-                    eprint(format!("Failed to setup venv: {}", e));
-                    return;
+                    return Err(format!("Failed to setup venv: {}", e));
                 }
             } else {
                 wprint("Installation Cancelled".to_owned());
-                return;
+                return Ok(());
             }
         }
 
@@ -559,19 +538,18 @@ impl Installer {
             match output {
                 Ok(out) => {
                     if !out.status.success() {
-                        eprint(format!(
+                        return Err(format!(
                             "Failed to install from lock file: {}",
                             String::from_utf8_lossy(&out.stderr)
                         ));
                     } else {
                         println!("{}", String::from_utf8_lossy(&out.stdout));
                         iprint("Installed from ppmm.lock successfully".to_string());
-                        return;
+                        return Ok(());
                     }
                 }
                 Err(e) => {
-                    eprint(format!("Failed to execute pip: {}", e));
-                    return;
+                    return Err(format!("Failed to execute pip: {}", e));
                 }
             }
         }
@@ -581,19 +559,20 @@ impl Installer {
             packages_to_install.push(format!("{}=={}", name, version));
         }
 
-        // Batched pip install for better performance
         match install_packages_batch(&packages_to_install, venv_root) {
             Ok(_) => {
                 for (name, _) in conf.packages.iter() {
-                     iprint(format!("Package '{}' installed", name));
+                    iprint(format!("Package '{}' installed", name));
                 }
             }
-            Err(e) => eprint(format!("Failed to install packages: {}", e)),
+            Err(e) => return Err(format!("Failed to install packages: {}", e)),
         }
 
         if let Err(e) = generate_lock_file(venv_root) {
             eprint(format!("Failed to generate lock file: {}", e));
         }
+
+        Ok(())
     }
 }
 
@@ -601,18 +580,16 @@ impl Installer {
 pub struct BuildProject;
 
 impl BuildProject {
-    pub fn build_project(&self) {
+    pub fn build_project(&self) -> Result<(), String> {
         let config_file = get_project_config_file();
         if !Path::new(config_file).exists() {
-            eprint(format!("Could not find {}", config_file));
-            return;
+            return Err(format!("Could not find {}", config_file));
         }
 
         let conf = match Config::load_from_file(config_file) {
             Ok(conf) => conf,
             Err(e) => {
-                eprint(e.to_string());
-                return;
+                return Err(e.to_string());
             }
         };
 
@@ -622,7 +599,7 @@ impl BuildProject {
             None => {
                 wprint("No 'build' script defined in project.toml".to_string());
                 wprint("Add a [scripts] section with 'build = \"your build command\"'".to_string());
-                return;
+                return Ok(());
             }
         };
 
@@ -639,8 +616,7 @@ impl BuildProject {
             c.arg("-c");
             c
         } else {
-            eprint("Unsupported OS".to_owned());
-            return;
+            return Err("Unsupported OS".to_owned());
         };
 
         let current_path = std::env::var("PATH").unwrap_or_default();
@@ -652,15 +628,16 @@ impl BuildProject {
         match cmd.spawn() {
             Ok(mut child) => {
                 if let Err(e) = child.wait() {
-                    eprint(format!("Error waiting for build script: {}", e));
-                    return;
+                    return Err(format!("Error waiting for build script: {}", e));
                 }
                 iprint("Build completed successfully".to_string());
             }
             Err(e) => {
-                eprint(format!("Failed to execute build script: {}", e));
+                return Err(format!("Failed to execute build script: {}", e));
             }
         }
+
+        Ok(())
     }
 }
 
@@ -672,18 +649,16 @@ pub struct BumpVersion {
 }
 
 impl BumpVersion {
-    pub fn bump_version(&self) {
+    pub fn bump_version(&self) -> Result<(), String> {
         let config_file = get_project_config_file();
         if !Path::new(config_file).exists() {
-            eprint(format!("Could not find {}", config_file));
-            return;
+            return Err(format!("Could not find {}", config_file));
         }
 
         let mut conf = match Config::load_from_file(config_file) {
             Ok(conf) => conf,
             Err(e) => {
-                eprint(e.to_string());
-                return;
+                return Err(e.to_string());
             }
         };
 
@@ -691,8 +666,7 @@ impl BumpVersion {
         let new_version = match bump_semantic_version(&current_version, &self.bump_type) {
             Ok(v) => v,
             Err(e) => {
-                eprint(format!("Failed to bump version: {}", e));
-                return;
+                return Err(format!("Failed to bump version: {}", e));
             }
         };
 
@@ -707,9 +681,11 @@ impl BumpVersion {
                 ));
             }
             Err(e) => {
-                eprint(format!("Failed to update project.toml: {}", e));
+                return Err(format!("Failed to update project.toml: {}", e));
             }
         }
+
+        Ok(())
     }
 }
 
@@ -720,8 +696,9 @@ pub struct UpdatePackage {
 }
 
 impl UpdatePackage {
-    pub fn update_package(&self) {
+    pub fn update_package(&self) -> Result<(), String> {
         crate::ppm_functions::update_packages(self.pkg_names.as_slice());
+        Ok(())
     }
 }
 
