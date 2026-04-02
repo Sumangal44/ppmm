@@ -98,6 +98,7 @@ Here are the most commonly used `ppmm` commands:
 | `ppmm gen` | Generate requirements.txt |
 | `ppmm install` | Install dependencies |
 | `ppmm info` | Show project details |
+| `ppmm doctor` | Diagnose environment issues |
 
 
 ## Installation
@@ -422,6 +423,20 @@ ppmm install
 # Install from requirements.txt
 ppmm install -r requirements.txt
 ppmm install --requirements /path/to/reqs.txt
+```
+#### `ppmm doctor`
+
+Run diagnostics to verify your project and environment setup.
+
+**Checks:**
+- Presence of `project.toml`
+- Virtual environment (`venv`) and its Python
+- System Python installation
+- pip availability
+
+**Usage:**
+```bash
+ppmm doctor
 ```
 
 ## Project Configuration

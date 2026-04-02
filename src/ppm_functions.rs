@@ -337,3 +337,134 @@ mod tests {
         assert!(true);
     }
 }
+use std::path::Path;
+use std::process::Command;
+use colored::*;
+
+pub fn doctor() {
+    println!("\nRunning ppmm diagnostics...\n");
+
+    let mut issues = 0;
+
+    // ---------------------------
+    // [Project]
+    // ---------------------------
+    println!("{}", "[Project]".blue().bold());
+
+    let config_file = get_project_config_file();
+
+    if !Path::new(config_file).exists() {
+        wprint("project.toml not found (Not a PPMM project)".to_string());
+        issues += 1;
+    } else {
+        println!("{} {}", "✔".green(), "project.toml found".green());
+    }
+
+    println!();
+
+    // ---------------------------
+    // [Environment]
+    // ---------------------------
+    println!("{}", "[Environment]".blue().bold());
+
+    let venv_path = Path::new("venv");
+
+    let venv_python = if cfg!(target_os = "windows") {
+        "venv\\Scripts\\python.exe"
+    } else {
+        "venv/bin/python"
+    };
+
+    if venv_path.exists() {
+        println!("{} {}", "✔".green(), "Virtual Environment found".green());
+
+        if Path::new(venv_python).exists() {
+            println!("{} {}", "✔".green(), "Venv Python OK".green());
+
+            match Command::new(venv_python).arg("--version").output() {
+                Ok(output) if output.status.success() => {
+                    let version = if !output.stdout.is_empty() {
+                        String::from_utf8_lossy(&output.stdout)
+                    } else {
+                        String::from_utf8_lossy(&output.stderr)
+                    };
+                    println!("{} {}", "Python (venv):".cyan().bold(), version.trim());
+                }
+                _ => {
+                    wprint("Failed to get Python version from venv".to_string());
+                    issues += 1;
+                }
+            }
+        } else {
+            wprint("Python missing inside venv".to_string());
+            issues += 1;
+        }
+    } else {
+        wprint("Virtual Environment not found".to_string());
+        issues += 1;
+    }
+
+    println!();
+
+    // ---------------------------
+    // [System]
+    // ---------------------------
+    println!("{}", "[System]".blue().bold());
+
+    // System Python
+    let python_cmds = ["python", "python3"];
+    let mut python_found = false;
+
+    for cmd in python_cmds {
+        if let Ok(output) = Command::new(cmd).arg("--version").output() {
+            if output.status.success() {
+                let version = if !output.stdout.is_empty() {
+                    String::from_utf8_lossy(&output.stdout)
+                } else {
+                    String::from_utf8_lossy(&output.stderr)
+                };
+                println!("{} {}", "✔".green(), format!("System Python: {}", version.trim()));
+                python_found = true;
+                break;
+            }
+        }
+    }
+
+    if !python_found {
+        wprint("System Python not found".to_string());
+        issues += 1;
+    }
+
+    // pip check (better way)
+    let pip_check = Command::new("python")
+        .args(["-m", "pip", "--version"])
+        .output();
+
+    match pip_check {
+        Ok(output) if output.status.success() => {
+            let version = String::from_utf8_lossy(&output.stdout);
+            println!("{} {}", "✔".green(), format!("pip: {}", version.trim()));
+        }
+        _ => {
+            wprint("pip not found or not working".to_string());
+            issues += 1;
+        }
+    }
+
+    // ---------------------------
+    // Summary
+    // ---------------------------
+    println!("\n{}", "[Summary]".blue().bold());
+
+    if issues == 0 {
+        println!("{}", "✔ Everything looks good!".green().bold());
+    } else {
+        println!(
+            "{} {} issue(s) detected. Please fix them.",
+            "⚠".yellow().bold(),
+            issues
+        );
+    }
+
+    println!("\nDiagnostics complete\n");
+}
