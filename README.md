@@ -114,7 +114,6 @@ cargo install ppmm
 ### Using Homebrew (macOS/Linux)
 
 ```bash
-# Coming soon - waiting for tap creation
 brew tap Sumangal44/ppmm
 brew install ppmm
 ```
@@ -131,10 +130,27 @@ scoop install ppmm
 
 Download pre-built binaries from [GitHub Releases](https://github.com/Sumangal44/ppmm/releases):
 
-**Linux/macOS:**
+**Linux:**
 ```bash
-# Download and extract
-curl -L https://github.com/Sumangal44/ppmm/releases/latest/download/ppmm-linux-x64.tar.gz | tar xz
+# Download and install
+curl -L https://github.com/Sumangal44/ppmm/releases/latest/download/ppmm-linux-x64 -o ppmm
+chmod +x ppmm
+sudo mv ppmm /usr/local/bin/
+ppmm --version
+```
+
+**macOS (Intel x86_64):**
+```bash
+curl -L https://github.com/Sumangal44/ppmm/releases/latest/download/ppmm-macos-x64 -o ppmm
+chmod +x ppmm
+sudo mv ppmm /usr/local/bin/
+ppmm --version
+```
+
+**macOS (Apple Silicon / ARM64):**
+```bash
+curl -L https://github.com/Sumangal44/ppmm/releases/latest/download/ppmm-macos-arm64 -o ppmm
+chmod +x ppmm
 sudo mv ppmm /usr/local/bin/
 ppmm --version
 ```
