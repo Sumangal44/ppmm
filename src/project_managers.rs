@@ -41,6 +41,7 @@ pub enum Action {
     Bump(BumpVersion),
     /// List packages declared in project.toml
     List,
+    Doctor,
 }
 
 pub struct ProjectCreator {
