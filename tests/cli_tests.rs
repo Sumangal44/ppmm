@@ -3,7 +3,7 @@ use predicates::prelude::*;
 
 #[test]
 fn test_help_command() {
-    let mut cmd = Command::cargo_bin("ppmm").unwrap();
+    let mut cmd = Command::new(env!("CARGO_BIN_EXE_ppmm"));
     cmd.arg("--help")
         .assert()
         .success()
@@ -12,7 +12,7 @@ fn test_help_command() {
 
 #[test]
 fn test_version_command() {
-    let mut cmd = Command::cargo_bin("ppmm").unwrap();
+    let mut cmd = Command::new(env!("CARGO_BIN_EXE_ppmm"));
     cmd.arg("--version")
         .assert()
         .success()
@@ -21,7 +21,7 @@ fn test_version_command() {
 
 #[test]
 fn test_unknown_command() {
-    let mut cmd = Command::cargo_bin("ppmm").unwrap();
+    let mut cmd = Command::new(env!("CARGO_BIN_EXE_ppmm"));
     cmd.arg("unknown_command")
         .assert()
         .failure() // Should fail or show help/error

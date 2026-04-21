@@ -1,6 +1,12 @@
 #!/bin/bash
 set -e
 
+# Validate all bash scripts before running the release flow.
+bash ./scripts/check-scripts.sh
+
+# Sync all packaging metadata to Cargo.toml version.
+bash ./scripts/sync-version.sh
+
 # Build binaries
 ./scripts/build-release.sh
 

@@ -324,18 +324,6 @@ pub fn list_packages() {
     println!();
 }
 
-#[cfg(test)]
-mod tests {
-    // Most functions here have side effects (printing, filesystem, shelling out).
-    // They are better tested via integration tests (CLI tests).
-    // We strictly follow the request to add the module.
-    
-    #[test]
-    fn test_placeholder() {
-        assert!(true);
-    }
-}
-
 pub fn doctor() {
     println!("\nRunning ppmm diagnostics...\n");
 
@@ -411,17 +399,17 @@ pub fn doctor() {
     let mut python_found = false;
 
     for cmd in python_cmds {
-        if let Ok(output) = Command::new(cmd).arg("--version").output() {
-            if output.status.success() {
-                let version = if !output.stdout.is_empty() {
-                    String::from_utf8_lossy(&output.stdout)
-                } else {
-                    String::from_utf8_lossy(&output.stderr)
-                };
-                println!("{} {}", "✔".green(), format!("System Python: {}", version.trim()));
-                python_found = true;
-                break;
-            }
+        if let Ok(output) = Command::new(cmd).arg("--version").output()
+            && output.status.success()
+        {
+            let version = if !output.stdout.is_empty() {
+                String::from_utf8_lossy(&output.stdout)
+            } else {
+                String::from_utf8_lossy(&output.stderr)
+            };
+            println!("{} System Python: {}", "✔".green(), version.trim());
+            python_found = true;
+            break;
         }
     }
 
@@ -438,7 +426,7 @@ pub fn doctor() {
     match pip_check {
         Ok(output) if output.status.success() => {
             let version = String::from_utf8_lossy(&output.stdout);
-            println!("{} {}", "✔".green(), format!("pip: {}", version.trim()));
+            println!("{} pip: {}", "✔".green(), version.trim());
         }
         _ => {
             wprint("pip not found or not working".to_string());

@@ -263,6 +263,117 @@ pub fn generate_lock_file(venv_root: &str) -> Result<(), String> {
     Ok(())
 }
 
+pub fn run_ppmm_lock(args: &[String]) -> Result<(), String> {
+    // Prefer installed entrypoint first.
+    let status = Command::new("ppmm-lock").args(args).status();
+    if let Ok(exit) = status {
+        if exit.success() {
+            return Ok(());
+        }
+        return Err(format!("ppmm-lock command failed with status: {}", exit));
+    }
+
+    // Fallback to module execution via python3/python.
+    let mut last_error: Option<String> = None;
+    for python in ["python3", "python"] {
+        let is_local_checkout = Path::new("ppmm_lock/pyproject.toml").exists();
+
+        if is_local_checkout {
+            if let Err(e) = ensure_local_ppmm_lock_deps(python) {
+                last_error = Some(e);
+                continue;
+            }
+        }
+
+        let status = if is_local_checkout {
+            // Local source checkout: run module from ppmm_lock project root.
+            Command::new(python)
+                .current_dir("ppmm_lock")
+                .arg("-m")
+                .arg("ppmm_lock")
+                .args(args)
+                .status()
+        } else {
+            Command::new(python)
+                .arg("-m")
+                .arg("ppmm_lock")
+                .args(args)
+                .status()
+        };
+
+        match status {
+            Ok(exit) if exit.success() => return Ok(()),
+            Ok(exit) => {
+                last_error = Some(format!(
+                    "{} -m ppmm_lock failed with status: {}",
+                    python, exit
+                ));
+                continue;
+            }
+            Err(_) => continue,
+        }
+    }
+
+    Err(last_error.unwrap_or_else(|| {
+        "ppmm-lock is not available. Install it or ensure python can run module 'ppmm_lock'."
+            .to_string()
+    }))
+}
+
+fn ensure_local_ppmm_lock_deps(python: &str) -> Result<(), String> {
+    // Fast path: required deps already available.
+    let check = Command::new(python)
+        .current_dir("ppmm_lock")
+        .args(["-c", "import click, requests, packaging"])
+        .output();
+
+    if let Ok(output) = check {
+        if output.status.success() {
+            return Ok(());
+        }
+    }
+
+    iprint("Installing local ppmm_lock dependencies...".to_string());
+    let mut install = Command::new(python)
+        .current_dir("ppmm_lock")
+        .args(["-m", "pip", "install", "-r", "requirements.txt"])
+        .output()
+        .map_err(|e| format!("Failed to execute {} -m pip: {}", python, e))?;
+
+    // Some environments ship python without pip preinstalled (e.g. fresh venv).
+    if !install.status.success()
+        && String::from_utf8_lossy(&install.stderr).contains("No module named pip")
+    {
+        let ensure = Command::new(python)
+            .current_dir("ppmm_lock")
+            .args(["-m", "ensurepip", "--upgrade"])
+            .output()
+            .map_err(|e| format!("Failed to execute {} -m ensurepip: {}", python, e))?;
+
+        if !ensure.status.success() {
+            return Err(format!(
+                "Failed to bootstrap pip with ensurepip: {}",
+                String::from_utf8_lossy(&ensure.stderr)
+            ));
+        }
+
+        install = Command::new(python)
+            .current_dir("ppmm_lock")
+            .args(["-m", "pip", "install", "-r", "requirements.txt"])
+            .output()
+            .map_err(|e| format!("Failed to execute {} -m pip: {}", python, e))?;
+    }
+
+    if install.status.success() {
+        return Ok(());
+    }
+
+    Err(format!(
+        "Failed to install ppmm_lock dependencies: {}",
+        String::from_utf8_lossy(&install.stderr)
+    ))
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

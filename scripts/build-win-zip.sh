@@ -1,10 +1,14 @@
 #!/bin/bash
-set -e
+set -euo pipefail
 
-VERSION="1.1.5"  # Change this
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
+VERSION="3.1.2"  # Auto-synced from Cargo.toml
 
-cd releases/windows
+bash "${REPO_ROOT}/scripts/sync-version.sh"
+
+cd "${REPO_ROOT}/releases/windows"
 zip -r ppmm-windows-x64.zip ppmm-windows-x64.exe
-cd ../../
+cd "${REPO_ROOT}"
 
-echo "Windows zip created!"
+echo "Windows zip created for version ${VERSION}!"

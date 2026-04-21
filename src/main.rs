@@ -48,6 +48,7 @@ fn main() {
             ppm_functions::list_packages();
             Ok(())
         }
+        Action::Lock(lock_cmd) => lock_cmd.execute(),
         Action::Doctor => {
             ppm_functions::doctor();
             Ok(())

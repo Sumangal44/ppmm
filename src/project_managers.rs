@@ -41,7 +41,96 @@ pub enum Action {
     Bump(BumpVersion),
     /// List packages declared in project.toml
     List,
+    /// Dependency lock and security commands powered by ppmm-lock
+    Lock(LockCommand),
     Doctor,
+}
+
+#[derive(Args, Debug)]
+pub struct LockCommand {
+    #[clap(subcommand)]
+    pub command: LockAction,
+}
+
+#[derive(Subcommand, Debug)]
+pub enum LockAction {
+    /// Resolve and pin all dependencies
+    Lock(LockOptions),
+    /// Install from lock or requirements file
+    Install(LockInstallOptions),
+    /// Check for available upgrades
+    Update(LockUpdateOptions),
+    /// Scan for known vulnerabilities
+    Audit(LockAuditOptions),
+}
+
+#[derive(Args, Debug)]
+pub struct LockOptions {
+    /// Path to requirements file
+    #[clap(short = 'r', long = "requirements", default_value = "requirements.txt")]
+    pub requirements: String,
+    /// Skip hash computation
+    #[clap(long = "no-hashes", takes_value = false)]
+    pub no_hashes: bool,
+}
+
+#[derive(Args, Debug)]
+pub struct LockInstallOptions {
+    /// Explicit requirements file to install from
+    #[clap(short = 'r', long = "requirements")]
+    pub requirements: Option<String>,
+}
+
+#[derive(Args, Debug)]
+pub struct LockUpdateOptions {
+    /// Apply updates and regenerate lockfile
+    #[clap(long = "apply", takes_value = false)]
+    pub apply: bool,
+}
+
+#[derive(Args, Debug)]
+pub struct LockAuditOptions {
+    /// Output results as JSON
+    #[clap(long = "json-output", takes_value = false)]
+    pub json_output: bool,
+}
+
+impl LockCommand {
+    pub fn execute(&self) -> Result<(), String> {
+        match &self.command {
+            LockAction::Lock(options) => {
+                let mut args: Vec<String> = vec!["lock".to_string()];
+                args.push("--requirements".to_string());
+                args.push(options.requirements.clone());
+                if options.no_hashes {
+                    args.push("--no-hashes".to_string());
+                }
+                run_ppmm_lock(&args)
+            }
+            LockAction::Install(options) => {
+                let mut args: Vec<String> = vec!["install".to_string()];
+                if let Some(req) = &options.requirements {
+                    args.push("--requirements".to_string());
+                    args.push(req.clone());
+                }
+                run_ppmm_lock(&args)
+            }
+            LockAction::Update(options) => {
+                let mut args: Vec<String> = vec!["update".to_string()];
+                if options.apply {
+                    args.push("--apply".to_string());
+                }
+                run_ppmm_lock(&args)
+            }
+            LockAction::Audit(options) => {
+                let mut args: Vec<String> = vec!["audit".to_string()];
+                if options.json_output {
+                    args.push("--json-output".to_string());
+                }
+                run_ppmm_lock(&args)
+            }
+        }
+    }
 }
 
 pub struct ProjectCreator {
@@ -253,7 +342,7 @@ impl AddPackage {
                 Ok(())
             }
             Err(e) => {
-                return Err(e);
+                Err(e)
             }
         }
     }
