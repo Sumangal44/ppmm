@@ -3,7 +3,7 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
-VERSION="3.1.4"  # Auto-synced from Cargo.toml
+VERSION="3.1.5"  # Auto-synced from Cargo.toml
 
 bash "${REPO_ROOT}/scripts/sync-version.sh"
 
