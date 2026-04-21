@@ -325,7 +325,9 @@ fn ensure_local_ppmm_lock_deps(python: &str) -> Result<(), String> {
         .args(["-c", "import click, requests, packaging"])
         .output();
 
-    if let Ok(output) = check && output.status.success() {
+    if let Ok(output) = check
+        && output.status.success()
+    {
         return Ok(());
     }
 
