@@ -1,0 +1,81 @@
+name: Auto Version Tag + Release Trigger
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - Cargo.toml
+      - packaging/**
+      - scripts/sync-version.sh
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  tag-version:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Read version from Cargo.toml
+        id: version
+        run: |
+          VERSION=$(grep '^version = ' Cargo.toml | head -n1 | cut -d '"' -f2)
+          if [ -z "$VERSION" ]; then
+            echo "Could not read version from Cargo.toml"
+            exit 1
+          fi
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Ensure tag does not already exist
+        id: tag_check
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          TAG="v${VERSION}"
+          if git rev-parse -q --verify "refs/tags/${TAG}" >/dev/null || git ls-remote --tags origin "refs/tags/${TAG}" | grep -q "${TAG}$"; then
+            echo "Tag ${TAG} already exists. Nothing to do."
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Sync packaging metadata
+        if: steps.tag_check.outputs.exists == 'false'
+        run: |
+          chmod +x ./scripts/sync-version.sh
+          ./scripts/sync-version.sh
+
+      - name: Commit synced files (if changed)
+        if: steps.tag_check.outputs.exists == 'false'
+        run: |
+          if git diff --quiet; then
+            echo "No sync changes to commit"
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "chore: sync version files for v${{ steps.version.outputs.version }}"
+          git push origin HEAD:master
+
+      - name: Create and push release tag
+        if: steps.tag_check.outputs.exists == 'false'
+        run: |
+          TAG="v${{ steps.version.outputs.version }}"
+          git tag -a "$TAG" -m "Release $TAG"
+          git push origin "$TAG"
+
+      - name: Summary
+        run: |
+          if [ "${{ steps.tag_check.outputs.exists }}" = "true" ]; then
+            echo "Version tag already exists. Release workflow not triggered."
+          else
+            echo "Created new tag v${{ steps.version.outputs.version }}."
+            echo "Tag push triggers .github/workflows/release.yml automatically."
+          fi
