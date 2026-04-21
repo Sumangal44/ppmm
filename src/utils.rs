@@ -278,11 +278,9 @@ pub fn run_ppmm_lock(args: &[String]) -> Result<(), String> {
     for python in ["python3", "python"] {
         let is_local_checkout = Path::new("ppmm_lock/pyproject.toml").exists();
 
-        if is_local_checkout {
-            if let Err(e) = ensure_local_ppmm_lock_deps(python) {
-                last_error = Some(e);
-                continue;
-            }
+        if is_local_checkout && let Err(e) = ensure_local_ppmm_lock_deps(python) {
+            last_error = Some(e);
+            continue;
         }
 
         let status = if is_local_checkout {
@@ -327,10 +325,8 @@ fn ensure_local_ppmm_lock_deps(python: &str) -> Result<(), String> {
         .args(["-c", "import click, requests, packaging"])
         .output();
 
-    if let Ok(output) = check {
-        if output.status.success() {
-            return Ok(());
-        }
+    if let Ok(output) = check && output.status.success() {
+        return Ok(());
     }
 
     iprint("Installing local ppmm_lock dependencies...".to_string());
