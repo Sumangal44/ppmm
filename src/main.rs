@@ -44,7 +44,18 @@ fn main() {
             Ok(())
         }
         Action::Update(update) => update.update_package(),
-        Action::List => ppm_functions::list_packages(),
-        Action::Doctor => ppm_functions::doctor(),
+        Action::List => {
+            ppm_functions::list_packages();
+            Ok(())
+        }
+        Action::Doctor => {
+            ppm_functions::doctor();
+            Ok(())
+        }
+    };
+
+    if let Err(err) = result {
+        eprintln!("Error: {err}");
+        std::process::exit(1);
     }
 }

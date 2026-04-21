@@ -4,7 +4,6 @@ use std::{
     path::Path,
     process::Command,
 };
-use colored::Colorize;
 
 
 // Constants
