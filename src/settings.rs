@@ -50,8 +50,8 @@ impl Config {
     }
 
     pub fn write_to_file(&self, path: &str) -> Result<(), Error> {
-        let toml_string = toml::to_string(&self)
-            .map_err(|e| Error::new(std::io::ErrorKind::InvalidData, e))?;
+        let toml_string =
+            toml::to_string(&self).map_err(|e| Error::new(std::io::ErrorKind::InvalidData, e))?;
         fs::write(path, toml_string)
     }
 
@@ -95,18 +95,18 @@ mod tests {
         );
         let mut packages = HashMap::new();
         packages.insert("requests".to_string(), "2.0.0".to_string());
-        
+
         let config = Config::new(project, packages, HashMap::new());
-        
+
         // Write to temp file
         let file = NamedTempFile::new().expect("Failed to create temp file");
         let path = file.path().to_str().unwrap();
-        
+
         config.write_to_file(path).expect("Failed to write config");
-        
+
         // Load back
         let loaded = Config::load_from_file(path).expect("Failed to load config");
-        
+
         assert_eq!(loaded.project.name, "test");
         assert_eq!(loaded.packages.get("requests"), Some(&"2.0.0".to_string()));
     }

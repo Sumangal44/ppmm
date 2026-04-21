@@ -1,10 +1,9 @@
 use colored::Colorize;
 use std::{
-    io::{self, Write, IsTerminal},
+    io::{self, IsTerminal, Write},
     path::Path,
     process::Command,
 };
-
 
 // Constants
 const PROJECT_CONFIG_FILE: &str = "project.toml";
@@ -36,15 +35,14 @@ pub fn get_venv_pip_path(venv_root: &str) -> String {
 }
 
 pub fn get_venv_bin_dir(venv_root: &str) -> String {
-    use std::path::{PathBuf, MAIN_SEPARATOR};
+    use std::path::{MAIN_SEPARATOR, PathBuf};
 
     let rel = PathBuf::from(venv_root).join(VENV_BIN_DIR);
 
     // Try to canonicalize the path (resolve to absolute). If that fails
     // (e.g., venv not created yet), fall back to joining with current_dir().
-    let abs_path = std::fs::canonicalize(&rel).or_else(|_| {
-        std::env::current_dir().map(|cwd| cwd.join(&rel))
-    });
+    let abs_path =
+        std::fs::canonicalize(&rel).or_else(|_| std::env::current_dir().map(|cwd| cwd.join(&rel)));
 
     match abs_path {
         Ok(p) => {
@@ -91,7 +89,7 @@ pub fn project_exists(name: &String, is_init: bool) -> bool {
         Path::new(get_project_config_file()).exists()
     } else {
         Path::new(name).exists()
-        && Path::new(&format!("{}/{}", name, get_project_config_file())).exists()
+            && Path::new(&format!("{}/{}", name, get_project_config_file())).exists()
     }
 }
 
@@ -136,7 +134,10 @@ pub fn setup_venv(venv_path: String) -> Result<(), String> {
 pub fn ask_if_create_venv() -> bool {
     // Check if stdin is a terminal
     if !std::io::stdin().is_terminal() {
-        wprint("Non-interactive environment detected. Defaulting to 'yes' for venv creation.".to_string());
+        wprint(
+            "Non-interactive environment detected. Defaulting to 'yes' for venv creation."
+                .to_string(),
+        );
         return true;
     }
 
@@ -148,7 +149,7 @@ pub fn ask_if_create_venv() -> bool {
                 .green()
                 .bold()
         );
-        
+
         // Handle potential flush error safely
         if let Err(e) = io::stdout().flush() {
             eprint(format!("Failed to flush stdout: {}", e));
@@ -203,7 +204,6 @@ fn validate_package_name(pkg: &str) -> Result<(), String> {
     Ok(())
 }
 
-
 pub fn install_packages_batch(pkgs: &[String], venv_root: &str) -> Result<(), String> {
     if !check_venv_dir_exists(venv_root) {
         return Err("Virtual Environment Not Found".to_string());
@@ -256,7 +256,7 @@ pub fn generate_lock_file(venv_root: &str) -> Result<(), String> {
     let lock_content = String::from_utf8_lossy(&output.stdout);
     let mut file = std::fs::File::create("ppmm.lock")
         .map_err(|e| format!("Failed to create ppmm.lock: {}", e))?;
-    
+
     file.write_all(lock_content.as_bytes())
         .map_err(|e| format!("Failed to write to ppmm.lock: {}", e))?;
 
@@ -384,7 +384,7 @@ mod tests {
         assert!(validate_package_name("my-package").is_ok());
         assert!(validate_package_name("my_package").is_ok());
         assert!(validate_package_name("package123").is_ok());
-        
+
         // Invalid names
         assert!(validate_package_name("").is_err());
         assert!(validate_package_name("pkg with spaces").is_err());
@@ -395,9 +395,15 @@ mod tests {
 
     #[test]
     fn test_parse_version() {
-        assert_eq!(parse_version("requests==2.26.0"), ("requests".to_string(), Some("2.26.0".to_string())));
+        assert_eq!(
+            parse_version("requests==2.26.0"),
+            ("requests".to_string(), Some("2.26.0".to_string()))
+        );
         assert_eq!(parse_version("numpy"), ("numpy".to_string(), None));
-        assert_eq!(parse_version("requests>=2.0.0"), ("requests".to_string(), None));
+        assert_eq!(
+            parse_version("requests>=2.0.0"),
+            ("requests".to_string(), None)
+        );
     }
 
     #[test]
@@ -405,7 +411,10 @@ mod tests {
         let venv_root = "test_venv";
         #[cfg(target_os = "windows")]
         {
-            assert_eq!(get_venv_python_path(venv_root), "./test_venv/Scripts/python.exe");
+            assert_eq!(
+                get_venv_python_path(venv_root),
+                "./test_venv/Scripts/python.exe"
+            );
             assert_eq!(get_venv_pip_path(venv_root), "./test_venv/Scripts/pip.exe");
             let bin = get_venv_bin_dir(venv_root);
             assert!(bin.contains("test_venv"));

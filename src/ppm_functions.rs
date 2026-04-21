@@ -187,7 +187,11 @@ pub fn update_packages(pkg_names: &[String]) {
         return;
     }
 
-    let venv_root = conf.project.venv.clone().unwrap_or_else(|| "venv".to_string());
+    let venv_root = conf
+        .project
+        .venv
+        .clone()
+        .unwrap_or_else(|| "venv".to_string());
 
     if !check_venv_dir_exists(&venv_root) {
         wprint(format!("Could not find '{}' directory", venv_root));
@@ -222,9 +226,9 @@ pub fn update_packages(pkg_names: &[String]) {
 
     if packages_to_check.is_empty() {
         if !pkg_names.is_empty() {
-             eprint("No valid packages specified to update".to_owned());
+            eprint("No valid packages specified to update".to_owned());
         } else {
-             eprint("No packages to update".to_owned());
+            eprint("No packages to update".to_owned());
         }
         return;
     }
@@ -302,7 +306,7 @@ pub fn list_packages() {
     };
 
     let count = conf.packages.len();
-    
+
     if count == 0 {
         wprint("No packages configured".to_string());
         return;
@@ -312,15 +316,11 @@ pub fn list_packages() {
         "\nConfigured packages ({}):",
         count.to_string().green().bold()
     );
-    
+
     for (name, version) in conf.packages.iter() {
-        println!(
-            "{}=={}",
-            name.green().bold(),
-            version.bright_black()
-        );
+        println!("{}=={}", name.green().bold(), version.bright_black());
     }
-    
+
     println!();
 }
 

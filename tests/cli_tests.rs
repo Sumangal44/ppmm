@@ -7,7 +7,9 @@ fn test_help_command() {
     cmd.arg("--help")
         .assert()
         .success()
-        .stdout(predicate::str::contains("PPM is a project manager for Python"));
+        .stdout(predicate::str::contains(
+            "PPM is a project manager for Python",
+        ));
 }
 
 #[test]

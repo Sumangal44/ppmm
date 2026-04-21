@@ -221,8 +221,7 @@ impl ProjectCreator {
             ));
         }
 
-        fs::create_dir_all(&proj_dest)
-            .map_err(|e| format!("Failed to create directory: {}", e))?;
+        fs::create_dir_all(&proj_dest).map_err(|e| format!("Failed to create directory: {}", e))?;
 
         self.create_boilerplate_files()?;
 
@@ -341,9 +340,7 @@ impl AddPackage {
 
                 Ok(())
             }
-            Err(e) => {
-                Err(e)
-            }
+            Err(e) => Err(e),
         }
     }
 }
@@ -392,7 +389,11 @@ impl RemovePackage {
             }
         };
 
-        let venv_root = conf.project.venv.clone().unwrap_or_else(|| "venv".to_string());
+        let venv_root = conf
+            .project
+            .venv
+            .clone()
+            .unwrap_or_else(|| "venv".to_string());
 
         for pkg_name in self.pkg_names.iter() {
             if !conf.packages.contains_key(pkg_name) {
@@ -470,8 +471,17 @@ impl RunScript {
         };
 
         let current_path = std::env::var("PATH").unwrap_or_default();
-        let separator = if cfg!(target_os = "windows") { ";" } else { ":" };
-        let new_path = format!("{}{}{}", get_venv_bin_dir(venv_root), separator, current_path);
+        let separator = if cfg!(target_os = "windows") {
+            ";"
+        } else {
+            ":"
+        };
+        let new_path = format!(
+            "{}{}{}",
+            get_venv_bin_dir(venv_root),
+            separator,
+            current_path
+        );
         cmd.env("PATH", new_path);
         cmd.arg(cmd_str);
 
@@ -511,7 +521,11 @@ impl Installer {
             }
         };
 
-        let venv_root = conf.project.venv.clone().unwrap_or_else(|| "venv".to_string());
+        let venv_root = conf
+            .project
+            .venv
+            .clone()
+            .unwrap_or_else(|| "venv".to_string());
 
         if !check_venv_dir_exists(&venv_root) {
             wprint(format!("Could not find '{}' directory", venv_root));
@@ -709,8 +723,17 @@ impl BuildProject {
         };
 
         let current_path = std::env::var("PATH").unwrap_or_default();
-        let separator = if cfg!(target_os = "windows") { ";" } else { ":" };
-        let new_path = format!("{}{}{}", get_venv_bin_dir(venv_root), separator, current_path);
+        let separator = if cfg!(target_os = "windows") {
+            ";"
+        } else {
+            ":"
+        };
+        let new_path = format!(
+            "{}{}{}",
+            get_venv_bin_dir(venv_root),
+            separator,
+            current_path
+        );
         cmd.env("PATH", new_path);
         cmd.arg(build_script);
 
