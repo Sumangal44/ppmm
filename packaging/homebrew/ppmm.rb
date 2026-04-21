@@ -1,7 +1,7 @@
 class Ppmm < Formula
   desc "Python Project Manager - fast CLI tool to create, manage, and deploy Python projects"
   homepage "https://github.com/Sumangal44/ppmm"
-  version "3.1.2"
+  version "3.1.4"
   license "MIT"
 
   # SHA256 checksums are generated automatically from release artifacts.

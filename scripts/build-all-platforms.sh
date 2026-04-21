@@ -12,6 +12,27 @@ mkdir -p "${REPO_ROOT}/releases/macos" "${REPO_ROOT}/releases/linux" "${REPO_ROO
 build_ok=()
 build_fail=()
 
+HOST_TARGET="$(rustc -vV | awk '/^host: / {print $2}')"
+
+has_cross_toolchain() {
+  local target="$1"
+
+  case "${target}" in
+    x86_64-unknown-linux-gnu)
+      command -v x86_64-linux-gnu-gcc >/dev/null 2>&1
+      return
+      ;;
+    x86_64-pc-windows-gnu)
+      command -v x86_64-w64-mingw32-gcc >/dev/null 2>&1 && \
+        command -v x86_64-w64-mingw32-g++ >/dev/null 2>&1 && \
+        command -v x86_64-w64-mingw32-dlltool >/dev/null 2>&1
+      return
+      ;;
+  esac
+
+  return 0
+}
+
 build_target() {
   local target="$1"
   local output_path="$2"
@@ -21,6 +42,12 @@ build_target() {
   echo "\n==> Building ${platform_label} (${target})"
 
   rustup target add "${target}" >/dev/null 2>&1
+
+  if [[ "${target}" != "${HOST_TARGET}" ]] && ! has_cross_toolchain "${target}"; then
+    build_fail+=("${platform_label}")
+    echo "Skipped ${platform_label}: missing cross-compiler toolchain for ${target}"
+    return
+  fi
 
   if cargo build --release --target "${target}"; then
     cp "${REPO_ROOT}/target/${target}/release/${bin_name}" "${output_path}"
@@ -44,7 +71,7 @@ if [[ -f "${REPO_ROOT}/releases/windows/ppmm-windows-x64.exe" ]]; then
   echo "Packed: ${REPO_ROOT}/releases/windows/ppmm-windows-x64.zip"
 fi
 
-echo "\nVersion: ${VERSION}"
+echo "Version: ${VERSION}"
 echo "Successful builds: ${build_ok[*]:-none}"
 echo "Skipped builds: ${build_fail[*]:-none}"
 
