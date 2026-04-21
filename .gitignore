@@ -1,2 +1,7 @@
 /target
 /test-bin
+.venv
+__pycache__
+*.pyc
+
+    
