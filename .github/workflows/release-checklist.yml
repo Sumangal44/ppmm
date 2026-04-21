@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
 
 permissions:
-    contents: read
+  contents: read
 
 
 
@@ -25,6 +25,9 @@ jobs:
         with:
           components: clippy, rustfmt
 
+      - name: code formatting
+        run: cargo fmt
+              
       - name: Check code formatting
         run: cargo fmt  --check
 
