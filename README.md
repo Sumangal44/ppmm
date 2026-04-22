@@ -5,7 +5,7 @@ A fast, efficient command-line tool to create, manage, and deploy Python project
 
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Version](https://img.shields.io/badge/version-3.1.5-brightgreen.svg)](https://github.com/Sumangal44/ppmm/releases)
-
+[![Netlify Status](https://api.netlify.com/api/v1/badges/d9564fd3-7ca3-4b77-a04f-3c03097d4036/deploy-status)](https://app.netlify.com/projects/ppmmdocs/deploys)
 ## Table of Contents
 
 - [Features](#features)
