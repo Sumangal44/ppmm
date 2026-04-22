@@ -2,48 +2,168 @@
 outline: deep
 ---
 
-# Runtime API Examples
+# CLI Reference
 
-This page demonstrates usage of some of the runtime APIs provided by VitePress.
+This reference is aligned with the commands implemented in the Rust CLI.
 
-The main `useData()` API can be used to access site, theme, and page data for the current page. It works in both `.md` and `.vue` files:
+## Project Commands
 
-```md
-<script setup>
-import { useData } from 'vitepress'
+### `ppmm new <name>`
 
-const { theme, page, frontmatter } = useData()
-</script>
+Create a new project with source scaffolding.
 
-## Results
-
-### Theme Data
-<pre>{{ theme }}</pre>
-
-### Page Data
-<pre>{{ page }}</pre>
-
-### Page Frontmatter
-<pre>{{ frontmatter }}</pre>
+```bash
+ppmm new my-project -v 1.0.0 -d "My project" -g
 ```
 
-<script setup>
-import { useData } from 'vitepress'
+### `ppmm init`
 
-const { site, theme, page, frontmatter } = useData()
-</script>
+Initialize ppmm in the current folder.
 
-## Results
+```bash
+ppmm init -g
+```
 
-### Theme Data
-<pre>{{ theme }}</pre>
+## Dependency Commands
 
-### Page Data
-<pre>{{ page }}</pre>
+### `ppmm add <packages...>`
 
-### Page Frontmatter
-<pre>{{ frontmatter }}</pre>
+Add one or many packages, with optional version pins:
 
-## More
+```bash
+ppmm add requests flask
+ppmm add django==5.0.4
+```
 
-Check out the documentation for the [full list of runtime APIs](https://vitepress.dev/reference/runtime-api#usedata).
+### `ppmm rm <packages...>`
+
+Remove packages from project config and environment:
+
+```bash
+ppmm rm flask
+```
+
+### `ppmm install`
+
+Install dependencies from project config.
+
+```bash
+ppmm install
+ppmm install -r requirements.txt
+```
+
+### `ppmm update [packages...]`
+
+Update all configured packages, or selected package names.
+
+```bash
+ppmm update
+ppmm update requests flask
+```
+
+### `ppmm list`
+
+List configured packages from project metadata.
+
+```bash
+ppmm list
+```
+
+## Run and Build
+
+### `ppmm start`
+
+Run the configured main script.
+
+```bash
+ppmm start
+```
+
+### `ppmm run <script-name>`
+
+Run custom scripts defined in `project.toml`.
+
+```bash
+ppmm run test
+ppmm run dev
+```
+
+### `ppmm build`
+
+Run `scripts.build` from project config.
+
+```bash
+ppmm build
+```
+
+## Version and Metadata
+
+### `ppmm bump <patch|minor|major>`
+
+Update semantic version in project config.
+
+```bash
+ppmm bump patch
+```
+
+### `ppmm gen`
+
+Generate requirements.txt from configured packages.
+
+```bash
+ppmm gen
+```
+
+### `ppmm info`
+
+Print project details, scripts, and package summary.
+
+```bash
+ppmm info
+```
+
+### `ppmm doctor`
+
+Run diagnostic checks for config, Python, pip, and virtual environment.
+
+```bash
+ppmm doctor
+```
+
+## Lock Commands
+
+### `ppmm lock lock`
+
+Resolve and pin dependencies, optionally skipping hashes:
+
+```bash
+ppmm lock lock --requirements requirements.txt
+ppmm lock lock --no-hashes
+```
+
+### `ppmm lock install`
+
+Install dependencies from lock/requirements workflow:
+
+```bash
+ppmm lock install
+ppmm lock install --requirements requirements.txt
+```
+
+### `ppmm lock update`
+
+Check or apply lock updates:
+
+```bash
+ppmm lock update
+ppmm lock update --apply
+```
+
+### `ppmm lock audit`
+
+Scan dependencies for known vulnerabilities:
+
+```bash
+ppmm lock audit
+ppmm lock audit --json-output
+```

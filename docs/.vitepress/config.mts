@@ -2,27 +2,28 @@ import { defineConfig } from 'vitepress'
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
-  title: "ppmm.docs",
-  description: "PPMM is a project manager for Python",
+  title: 'ppmm docs',
+  description: 'Modern documentation for ppmm, the project manager for Python workspaces',
   themeConfig: {
     // https://vitepress.dev/reference/default-theme-config
     nav: [
       { text: 'Home', link: '/' },
-      { text: 'Examples', link: '/markdown-examples' }
+      { text: 'Getting Started', link: '/markdown-examples' },
+      { text: 'CLI Reference', link: '/api-examples' }
     ],
 
     sidebar: [
       {
-        text: 'Examples',
+        text: 'Documentation',
         items: [
-          { text: 'Markdown Examples', link: '/markdown-examples' },
-          { text: 'Runtime API Examples', link: '/api-examples' }
+          { text: 'Getting Started', link: '/markdown-examples' },
+          { text: 'CLI Reference', link: '/api-examples' }
         ]
       }
     ],
 
     socialLinks: [
-      { icon: 'github', link: 'https://github.com/vuejs/vitepress' }
+      { icon: 'github', link: 'https://github.com/Sumangal44/ppmm' }
     ]
   }
 })

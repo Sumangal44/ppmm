@@ -1,85 +1,86 @@
-# Markdown Extension Examples
+---
+outline: deep
+---
 
-This page demonstrates some of the built-in markdown extensions provided by VitePress.
+# Getting Started
 
-## Syntax Highlighting
+ppmm is a Rust-powered CLI for creating, managing, and shipping Python projects with a consistent workflow.
 
-VitePress provides Syntax Highlighting powered by [Shiki](https://github.com/shikijs/shiki), with additional features like line-highlighting:
+## Install
 
-**Input**
+Choose one install path:
 
-````md
-```js{4}
-export default {
-  data () {
-    return {
-      msg: 'Highlighted!'
-    }
-  }
-}
-```
-````
+```bash
+# Cargo
+cargo install ppmm
 
-**Output**
-
-```js{4}
-export default {
-  data () {
-    return {
-      msg: 'Highlighted!'
-    }
-  }
-}
+# Homebrew
+brew tap Sumangal44/ppmm
+brew install ppmm
 ```
 
-## Custom Containers
+## Create a New Project
 
-**Input**
-
-```md
-::: info
-This is an info box.
-:::
-
-::: tip
-This is a tip.
-:::
-
-::: warning
-This is a warning.
-:::
-
-::: danger
-This is a dangerous warning.
-:::
-
-::: details
-This is a details block.
-:::
+```bash
+ppmm new my-project -g
+cd my-project
+ppmm start
 ```
 
-**Output**
+## Initialize Existing Folder
 
-::: info
-This is an info box.
-:::
+```bash
+cd existing-project
+ppmm init
+ppmm add requests flask
+ppmm start
+```
 
-::: tip
-This is a tip.
-:::
+## Everyday Commands
 
-::: warning
-This is a warning.
-:::
+| Command | Purpose |
+| --- | --- |
+| `ppmm add <package>` | Add dependencies |
+| `ppmm rm <package>` | Remove dependencies |
+| `ppmm install` | Install dependencies from config |
+| `ppmm update` | Update all packages to latest |
+| `ppmm run <script>` | Run a custom script |
+| `ppmm build` | Run build script |
+| `ppmm bump patch|minor|major` | Bump semantic version |
+| `ppmm gen` | Generate requirements.txt |
+| `ppmm info` | Print project metadata |
+| `ppmm doctor` | Run environment diagnostics |
 
-::: danger
-This is a dangerous warning.
-:::
+## Lockfile Workflow
 
-::: details
-This is a details block.
-:::
+Use lock subcommands for reproducible and security-aware dependency handling:
 
-## More
+```bash
+# Resolve and pin dependencies
+ppmm lock lock
 
-Check out the documentation for the [full list of markdown extensions](https://vitepress.dev/guide/markdown).
+# Install from lock or requirements
+ppmm lock install
+
+# Check updates
+ppmm lock update
+
+# Audit vulnerabilities
+ppmm lock audit
+```
+
+## Project Layout
+
+```text
+my-project/
+├── project.toml
+├── requirements.txt
+├── ppmm.lock
+├── src/
+│   └── main.py
+└── venv/
+```
+
+## Next Step
+
+Continue to [CLI Reference](/api-examples) for full command details and examples.

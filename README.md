@@ -4,7 +4,7 @@
 A fast, efficient command-line tool to create, manage, and deploy Python projects. Written in Rust with cross-platform support for Windows, macOS, and Linux.
 
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/version-3.1.5latest-brightgreen.svg)](https://github.com/Sumangal44/ppmm/releases)
+[![Version](https://img.shields.io/badge/version-3.1.5-brightgreen.svg)](https://github.com/Sumangal44/ppmm/releases)
 
 ## Table of Contents
 
@@ -91,12 +91,17 @@ Here are the most commonly used `ppmm` commands:
 | `ppmm add <package>` | Add and install packages |
 | `ppmm rm <package>` | Remove installed packages |
 | `ppmm update` | Update all packages |
+| `ppmm list` | List configured packages |
 | `ppmm start` | Run the main project script |
 | `ppmm run <script>` | Run custom script from project.toml |
 | `ppmm build` | Run build script |
 | `ppmm bump patch/minor/major` | Bump project version |
 | `ppmm gen` | Generate requirements.txt |
 | `ppmm install` | Install dependencies |
+| `ppmm lock lock` | Resolve and pin dependencies |
+| `ppmm lock install` | Install via lock/requirements workflow |
+| `ppmm lock update` | Check or apply dependency updates |
+| `ppmm lock audit` | Scan dependencies for vulnerabilities |
 | `ppmm info` | Show project details |
 | `ppmm doctor` | Diagnose environment issues |
 
@@ -443,7 +448,7 @@ ppmm doctor
 
 ### `project.toml` Format
 
-PPM uses TOML for project configuration. Here's the complete format:
+PPMM uses TOML for project configuration. Here's the complete format:
 
 ```toml
 [project]
@@ -481,7 +486,7 @@ upgrade-pip = "python -m pip install --upgrade pip"
 
 ## Project Structure
 
-PPM creates the following structure for new projects:
+PPMM creates the following structure for new projects:
 
 ```
 my-project/
@@ -549,7 +554,7 @@ ppmm gen
 
 ## Cross-Platform Support
 
-PPM is fully cross-platform and tested on:
+PPMM is fully cross-platform and tested on:
 
 - **Windows** - Full support, `.exe` extensions handled automatically
 - **macOS** - Full support, uses `bin/` for venv
@@ -600,7 +605,7 @@ cargo clippy
 
 ### Output
 
-Binary location: `target/release/ppmm` (or `ppm.exe` on Windows)
+Binary location: `target/release/ppmm` (or `ppmm.exe` on Windows)
 
 ### Development
 

@@ -247,7 +247,7 @@ impl ProjectCreator {
         if !self.is_init {
             println!("  cd {}", self.project.name.blue());
         }
-        println!("  {} start\n", "ppm".red());
+        println!("  {} start\n", "ppmm".red());
 
         Ok(())
     }
