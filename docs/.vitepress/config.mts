@@ -5,6 +5,7 @@ export default defineConfig({
   title: 'ppmm docs',
   description: 'Modern documentation for ppmm, the project manager for Python workspaces',
   themeConfig: {
+    appearance: true,
     // https://vitepress.dev/reference/default-theme-config
     nav: [
       { text: 'Home', link: '/' },
