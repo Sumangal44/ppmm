@@ -64,6 +64,12 @@ jobs:
           git commit -m "chore: sync version files for v${{ steps.version.outputs.version }}"
           git push origin HEAD:master
 
+      - name: Configure git identity for tag
+        if: steps.tag_check.outputs.exists == 'false'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
       - name: Create and push release tag
         if: steps.tag_check.outputs.exists == 'false'
         run: |
