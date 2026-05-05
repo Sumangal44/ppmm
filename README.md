@@ -680,7 +680,7 @@ cargo watch -x build
 
 **Solutions:**
 1. Check package name spelling
-2. Verify package exists: `pip search <package>`
+2. Verify package existence on PyPI: visit `https://pypi.org/project/<package>/` in your browser
 3. Check pip version: `pip --version`
 4. Update pip: `ppmm run upgrade-pip`
 
