@@ -79,11 +79,19 @@ pub fn show_project_info() {
         }
     );
     for (name, version) in conf.packages.iter().take(10) {
-        println!(
-            "{}=={}",
-            name.bright_yellow().bold(),
-            version.bright_red().bold()
-        );
+        if is_vcs_url(version) {
+            println!(
+                "{}@{}",
+                name.bright_yellow().bold(),
+                version.bright_red().bold()
+            );
+        } else {
+            println!(
+                "{}=={}",
+                name.bright_yellow().bold(),
+                version.bright_red().bold()
+            );
+        }
     }
     if conf.packages.len() > 10 {
         println!("... and {} more", conf.packages.len() - 10);
@@ -108,7 +116,11 @@ pub fn gen_requirements() {
 
     let mut reqs = String::new();
     for (name, version) in conf.packages.iter() {
-        reqs.push_str(&format!("{}=={}\n", name, version));
+        if is_vcs_url(version) {
+            reqs.push_str(&format!("{}@{}\n", name, version));
+        } else {
+            reqs.push_str(&format!("{}=={}\n", name, version));
+        }
     }
 
     let req_file = get_requirements_file();
@@ -234,6 +246,12 @@ pub fn update_packages(pkg_names: &[String]) {
     }
 
     for name in packages_to_check {
+        if let Some(current_ver) = conf.packages.get(&name) {
+            if is_vcs_url(current_ver) {
+                wprint(format!("Skipping VCS package '{}' during update", name));
+                continue;
+            }
+        }
         match get_pkg_version(&name) {
             Ok(latest_ver) => updates.push((name.clone(), latest_ver)),
             Err(e) => {
@@ -318,7 +336,11 @@ pub fn list_packages() {
     );
 
     for (name, version) in conf.packages.iter() {
-        println!("{}=={}", name.green().bold(), version.bright_black());
+        if is_vcs_url(version) {
+            println!("{}@{}", name.green().bold(), version.bright_black());
+        } else {
+            println!("{}=={}", name.green().bold(), version.bright_black());
+        }
     }
 
     println!();
@@ -399,17 +421,17 @@ pub fn doctor() {
     let mut python_found = false;
 
     for cmd in python_cmds {
-        if let Ok(output) = Command::new(cmd).arg("--version").output()
-            && output.status.success()
-        {
-            let version = if !output.stdout.is_empty() {
-                String::from_utf8_lossy(&output.stdout)
-            } else {
-                String::from_utf8_lossy(&output.stderr)
-            };
-            println!("{} System Python: {}", "✔".green(), version.trim());
-            python_found = true;
-            break;
+        if let Ok(output) = Command::new(cmd).arg("--version").output() {
+            if output.status.success() {
+                let version = if !output.stdout.is_empty() {
+                    String::from_utf8_lossy(&output.stdout)
+                } else {
+                    String::from_utf8_lossy(&output.stderr)
+                };
+                println!("{} System Python: {}", "✔".green(), version.trim());
+                python_found = true;
+                break;
+            }
         }
     }
 

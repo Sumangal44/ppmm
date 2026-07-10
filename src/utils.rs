@@ -172,7 +172,21 @@ pub fn ask_if_create_venv() -> bool {
     }
 }
 
+pub fn is_vcs_url(ver: &str) -> bool {
+    ver.starts_with("git+")
+        || ver.starts_with("hg+")
+        || ver.starts_with("svn+")
+        || ver.starts_with("bzr+")
+}
+
 pub fn parse_version(pkg: &str) -> (String, Option<String>) {
+    // Check if it's a VCS URL with `@` separator first, e.g. "package@git+..."
+    if let Some((name, url)) = pkg.split_once('@') {
+        if is_vcs_url(url) {
+            return (name.to_string(), Some(url.to_string()));
+        }
+    }
+
     // Handle exact equality first
     if let Some((name, version)) = pkg.split_once("==") {
         return (name.to_string(), Some(version.to_string()));
@@ -325,10 +339,10 @@ fn ensure_local_ppmm_lock_deps(python: &str) -> Result<(), String> {
         .args(["-c", "import click, requests, packaging"])
         .output();
 
-    if let Ok(output) = check
-        && output.status.success()
-    {
-        return Ok(());
+    if let Ok(output) = check {
+        if output.status.success() {
+            return Ok(());
+        }
     }
 
     iprint("Installing local ppmm_lock dependencies...".to_string());
@@ -401,6 +415,10 @@ mod tests {
         assert_eq!(
             parse_version("requests>=2.0.0"),
             ("requests".to_string(), None)
+        );
+        assert_eq!(
+            parse_version("requests@git+https://github.com/psf/requests.git"),
+            ("requests".to_string(), Some("git+https://github.com/psf/requests.git".to_string()))
         );
     }
 
