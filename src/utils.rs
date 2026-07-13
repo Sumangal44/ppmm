@@ -182,7 +182,7 @@ pub fn is_vcs_url(ver: &str) -> bool {
 pub fn parse_version(pkg: &str) -> (String, Option<String>) {
     // Check if it's a VCS URL with `@` separator first, e.g. "package@git+..."
     if let Some((name, url)) = pkg.split_once('@') {
-        if is_vcs_url(url) {
+        if !name.is_empty() && !url.is_empty() && is_vcs_url(url) {
             return (name.to_string(), Some(url.to_string()));
         }
     }
