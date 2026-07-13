@@ -659,7 +659,11 @@ impl Installer {
 
         let mut packages_to_install: Vec<String> = vec![];
         for (name, version) in conf.packages.iter() {
-            packages_to_install.push(format!("{}=={}", name, version));
+            if is_vcs_url(version) {
+                packages_to_install.push(format!("{}@{}", name, version));
+            } else {
+                packages_to_install.push(format!("{}=={}", name, version));
+            }
         }
 
         match install_packages_batch(&packages_to_install, venv_root) {
